@@ -1,0 +1,209 @@
+/*buttons*/
+
+* {
+    -fx-primary-color: #2a2a2a;
+    -fx-secondary-color: #393b3f;
+    -fx-textfield-color: #404040;
+    -fx-text-fill: white;
+}
+
+.body {
+    -fx-background-color: -fx-primary-color;
+    -fx-fit-to-height: true;
+}
+
+.label {
+    -fx-text-fill: inherit;
+    -fx-pref-width: 100px;
+    -fx-spacing: inherit;
+    -fx-pref-height: 2em;
+    -fx-alignment: center-right;
+}
+
+.tab-pane {
+    -fx-pref-height: 20em;
+    -fx-background-color: #393b3f;
+}
+
+.text-area {
+    -fx-padding: 10px;
+    -fx-border-insets: 10px;
+    -fx-background-insets: 10px;
+    -fx-background-color: -fx-primary-color;
+}
+
+.text-area .content {
+    -fx-background-color: -fx-textfield-color;
+    -fx-background-radius: 0;
+    -fx-border-color: DARKSLATEGREY;
+    -fx-border-radius: 5px;
+}
+
+.text-field {
+    -fx-background-color: -fx-textfield-color;
+    -fx-pref-width: 300px;
+    -fx-pref-height: 2em;
+    -fx-border-color: DARKSLATEGREY;
+    -fx-border-radius: 5px;
+}
+
+*.tab-header-background {
+    -fx-background-color: -fx-primary-color;
+}
+
+.tab {
+    -fx-background-color: #232426;
+    -fx-border-width: 3px;
+    -fx-border-radius: 10px 10px 0 0;
+    -fx-background-radius: 10px 10px 0 0;
+}
+
+.tab:selected {
+    -fx-border-color: -fx-secondary-color;
+    -fx-background-color: -fx-secondary-color;
+    -fx-border-radius: 10px 10px 0 0;
+    -fx-background-radius: 10px 10px 0 0;
+}
+
+.separator {
+    -fx-background-color: lightblue;
+    -fx-padding: 5px;
+    -fx-border-insets: 5px;
+    -fx-background-insets: 5px;
+}
+
+.spinner {
+    -fx-pref-width: 5em;
+}
+
+.HBox {
+    -fx-spacing: 20px;
+    -fx-alignment: baseline-left;
+    -fx-background-color: inherit;
+    -fx-text-fill: inherit;
+    -fx-padding: 5px;
+    -fx-border-insets: 5px;
+    -fx-background-insets: 5px;
+}
+
+.menu-button {
+    -fx-background-color: inherit;
+    -fx-pref-width: 5em;
+}
+
+.menu-button .label {
+    -fx-alignment: center
+}
+
+.menu-item .label{
+    -fx-pref-width: 7em;
+    -fx-text-fill: black;
+    -fx-alignment: center-left;
+}
+
+.menu-button:hover {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
+
+.scroll-pane {
+    -fx-fill-width: true;
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+}
+
+.scroll-bar:horizontal, .scroll-bar:vertical{
+    -fx-background-color:transparent;
+}
+
+.increment-button, .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 0em;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: gray;
+    -fx-background-radius: 5em;
+}
+
+.pane {
+    -fx-background-color: inherit;
+    -fx-alignment: center;
+}
+
+.menu-bar {
+    -fx-padding: 5px;
+    -fx-background-color: inherit;
+    -fx-pref-height: 30px;
+}
+
+.field {
+    -fx-background-color: inherit;
+    -fx-padding: 10px;
+    -fx-border-insets: 10px;
+    -fx-background-insets: 10px;
+}
+
+.choice-box {
+    -fx-pref-width: 12em;
+    -fx-background-color: -fx-primary-color;
+}
+
+.choice-box .label {
+    -fx-alignment: baseline-left;
+}
+
+
+.button {
+    -fx-background-color: inherit;
+    -fx-border-color: white;
+    -fx-text-fill: white;
+    -fx-border-radius: 15px;
+    -fx-padding: 5px;
+    -fx-border-insets: 5px;
+    -fx-background-insets: 5px;
+}
+
+.button:hover {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-background-radius: 15px;
+    -fx-padding: 5px;
+    -fx-border-insets: 5px;
+    -fx-background-insets: 5px;
+}
+
+.web-view {
+    -fx-fill-height: true;
+}
+
+.preview-scroll-pane {
+    -fx-fill-width: true;
+    -fx-fit-to-height: true;
+}
+
+.fields-scroll-pane > .viewport {
+    -fx-fill-width: true;
+    -fx-fill-height: true;
+    -fx-background-color: -fx-primary-color;
+}
+
+#fields {
+    -fx-background-color: -fx-primary-color;
+    -fx-alignment: center;
+    -fx-fit-to-height: true;
+    -fx-fill-width: true;
+}
+
+.main-pane {
+    -fx-fill-height: true;
+    -fx-fill-width: true;
+}

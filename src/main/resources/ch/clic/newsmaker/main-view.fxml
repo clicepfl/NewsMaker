@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.VBox?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.web.WebView?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="ch.clic.newsmaker.MainController"
+            styleClass="body">
+
+    <MenuBar styleClass="menu-bar">
+        <Menu styleClass="menu-button" text="File">
+            <MenuItem text="Save" onAction="#openFile" disable="true"/>
+            <MenuItem text="Save as" onAction="#openFile" disable="true"/>
+            <MenuItem text="Open file" onAction="#openFile" disable="true"/>
+            <MenuItem text="Export file" onAction="#exportFile"/>
+        </Menu>
+    </MenuBar>
+
+    <GridPane styleClass="main-pane"
+            AnchorPane.bottomAnchor="0"
+            AnchorPane.leftAnchor="0"
+            AnchorPane.rightAnchor="0"
+            AnchorPane.topAnchor="30">
+        <columnConstraints>
+            <ColumnConstraints percentWidth="40"/>
+            <ColumnConstraints percentWidth="60" halignment="CENTER"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints percentHeight="100"/>
+        </rowConstraints>
+        <ScrollPane styleClass="fields-scroll-pane" fitToWidth="true">
+            <AnchorPane GridPane.columnIndex="0"  styleClass="fields-scroll-pane">
+                <VBox fx:id="fields"
+                      AnchorPane.bottomAnchor="0"
+                      AnchorPane.leftAnchor="0"
+                      AnchorPane.rightAnchor="0"
+                      AnchorPane.topAnchor="0">
+                    <Button text="Add Field" onAction="#addFieldButtonClick"/>
+                </VBox>
+            </AnchorPane>
+        </ScrollPane>
+
+
+        <StackPane GridPane.columnIndex="1" styleClass="preview-scroll-pane" onMouseEntered="#refreshPreview">
+            <ScrollPane fitToHeight="true" fitToWidth="true">
+                <WebView fx:id="preview"/>
+            </ScrollPane>
+        </StackPane>
+    </GridPane>
+
+</AnchorPane>
