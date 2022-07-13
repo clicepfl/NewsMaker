@@ -1,7 +1,10 @@
 package ch.clic.newsmaker;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -15,27 +18,41 @@ import javafx.scene.web.WebView;
 
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.io.Writer;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
+
 
 public class MainController {
 
+    private static final String CONFIG_FILE_PATH = "/config/config.json";
     private static final String DEFAULT_SECTION = "NEWS";
     private final HashMap<String, ArrayList<NewsFieldBean>> fieldSectionMap = new HashMap<>(); //fields are sorted by sections
-
+    private static Format.Preset defaultPreset;
     private final IntegerProperty numberOfFields = new SimpleIntegerProperty(0);
+
+    private final ObjectProperty<Format> formatProperty = new SimpleObjectProperty<>();
     @FXML
     public WebView preview; // used for previewing the HTML file
     @FXML
     private VBox fields;
 
+    public MainController() throws URISyntaxException, IOException {
+        URL configURL = Format.class.getResource(CONFIG_FILE_PATH);
 
-    public MainController() {
+        assert configURL != null;
+        formatProperty.setValue(Format.fromJSON(new File(configURL.toURI())));
+
+        defaultPreset = formatProperty.get().presets.get(0);
+
         fieldSectionMap.put(DEFAULT_SECTION, new ArrayList<>());
-        for (Format.Preset preset : Format.Preset.values()) {
-            if (preset.sectionTag != null) {
-                fieldSectionMap.putIfAbsent(preset.sectionTag, new ArrayList<>());
+        for (Format.Preset preset : formatProperty.get().presets) {
+            if (preset.sectionTag() != null) {
+                fieldSectionMap.putIfAbsent(preset.sectionTag(), new ArrayList<>());
             }
         }
     }
@@ -45,10 +62,15 @@ public class MainController {
      */
     @FXML
     protected void addFieldButtonClick(){
-        NewsFieldBean nfb = new NewsFieldBean();
-        fieldSectionMap.get(DEFAULT_SECTION).add(nfb);
-        nfb.setSection(DEFAULT_SECTION);
-        fields.getChildren().add(fields.getChildren().size()-1, createField(nfb));
+        NewsFieldBean fieldBean = new NewsFieldBean();
+        fieldBean.formatProperty.bind(formatProperty);
+        fieldSectionMap.get(DEFAULT_SECTION).add(fieldBean);
+        fieldBean.setSection(DEFAULT_SECTION);
+        fieldBean.setTemplate(formatProperty.get().defaultNewsTemplate);
+
+        fieldBean.updateWithPreset(defaultPreset);
+
+        fields.getChildren().add(fields.getChildren().size()-1, createField(fieldBean));
         numberOfFields.setValue(numberOfFields.intValue()+1);
     }
 
@@ -57,19 +79,46 @@ public class MainController {
      */
     @FXML
     protected void exportFile() {
-        FileChooser fileChooser = createFileChooser("Export file");
+        FileChooser fileChooser = createFileChooser("Export file", new FileChooser.ExtensionFilter("HTML files", "*.html", "*.HTML"));
         File file = fileChooser.showSaveDialog(fields.getScene().getWindow());
-        try (Writer wr = new FileWriter(file)){
-            wr.write(buildHTML());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        saveInFile(buildHTML(), file);
     }
 
     @FXML
-    protected void openFile(){
-        FileChooser fileChooser = createFileChooser("Open file");
+    protected void openFile() throws IOException {
+        FileChooser fileChooser = createFileChooser("Open file",  new FileChooser.ExtensionFilter("NewsMaker files (.nmkr)", "*.nmkr"));
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
+        formatProperty.setValue(Format.fromJSON(file));
+    }
+
+    @FXML
+    public void saveAs() {
+        FileChooser fileChooser = createFileChooser("Save as", new FileChooser.ExtensionFilter("NewsMaker files (.nmkr)", "*.nmkr"));
+        File file = fileChooser.showSaveDialog(fields.getScene().getWindow());
+
+        String content;
+        try {
+            content = formatProperty.get().toJSON();
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            content = e.getMessage();
+        }
+        saveInFile(content, file);
+    }
+
+    /**
+     * Save string content in file on disk
+     *
+     * @param content the content to write
+     * @param file the file where to write
+     */
+    private void saveInFile(String content, File file) {
+        if (Objects.isNull(file)) return;
+        try (Writer wr = new FileWriter(file)) {
+            wr.write(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
@@ -83,7 +132,7 @@ public class MainController {
      * @param language the language
      * @return a String containing the HTML of the section
      */
-    private String buildSectionHTML(String section, Format.Language language) {
+    private String buildSectionHTML(String section, String language) {
 
         StringBuilder stringBuilder = new StringBuilder();
 
@@ -101,12 +150,12 @@ public class MainController {
      */
     private String buildHTML() {
 
-        String base = Format.BASE;
+        String base = formatProperty.get().base;
 
-        for (Format.Language language : Format.Language.values()) {
+        for (String language : formatProperty.get().languages) {
             for (String section : fieldSectionMap.keySet()) {
                 String sectionHTML = buildSectionHTML(section, language).indent(12);
-                base = base.replace('@'+section.toUpperCase()+'#'+language.toString().toUpperCase(), sectionHTML);
+                base = base.replace('@'+section.toUpperCase()+'#'+ language.toUpperCase(), sectionHTML);
             }
         }
         return base;
@@ -117,10 +166,10 @@ public class MainController {
      * @param title title of the dialog
      * @return the FileChooser
      */
-    private FileChooser createFileChooser(String title) {
+    private FileChooser createFileChooser(String title, FileChooser.ExtensionFilter filter) {
         FileChooser fc = new FileChooser();
+        fc.getExtensionFilters().add(filter);
         fc.setTitle(title);
-        fc.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("HTML files (.html)","*.html"));
         return fc;
     }
 
@@ -134,11 +183,11 @@ public class MainController {
 
         TabPane tabPane = new TabPane();
 
-        for (Format.Language language : Format.Language.values()) {
+        for (String language : formatProperty.get().languages) {
             TextArea ta = new TextArea();
             ta.textProperty().bindBidirectional(fieldBean.getProperty(language, Format.Tags.NEWS_DESCRIPTION));
 
-            Tab tab = new Tab(language.toString(), new VBox(
+            Tab tab = new Tab(language.toLowerCase(), new VBox(
                     createFieldWithLabel("Titre: ", fieldBean.getProperty(language, Format.Tags.NEWS_TITLE)),
                     ta,
                     createFieldWithLabel("Date: ", fieldBean.getProperty(language, Format.Tags.NEWS_DATE)),
@@ -160,19 +209,14 @@ public class MainController {
         });
 
         ChoiceBox<Format.Preset> presetChoiceBox = new ChoiceBox<>();
-        presetChoiceBox.setItems(FXCollections.observableArrayList(Format.Preset.values()));
-        presetChoiceBox.setValue(Format.Preset.NONE);
+        presetChoiceBox.setItems(FXCollections.observableArrayList(formatProperty.get().presets));
+        presetChoiceBox.setValue(defaultPreset);
         presetChoiceBox.getSelectionModel().selectedItemProperty().addListener((o, oldValue, newValue) -> {
-            if (!newValue.equals(Format.Preset.NONE)) {
-                for (Format.Tags param : newValue.parameters.keySet()) {
-                    String value = newValue.parameters.get(param);
-                    fieldBean.setPropertyValue(param, value);
-                }
-                fieldBean.setSection(newValue.sectionTag);
-                fieldBean.base = newValue.template;
+            if (newValue != defaultPreset) {
+                fieldBean.updateWithPreset(newValue);
             } else {
                 fieldBean.setSection(DEFAULT_SECTION);
-                fieldBean.base = Format.DEFAULT_NEWS_TEMPLATE;
+                fieldBean.setTemplate(formatProperty.get().defaultNewsTemplate);
             }
         });
 
@@ -202,6 +246,7 @@ public class MainController {
         vb.getChildren().add(0, rb);
         return vb;
     }
+
 
     /**
      * Move the field up or down on the final HTML file

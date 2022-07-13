@@ -1,0 +1,36 @@
+{
+  "languages": ["FRANCAIS", "ENGLISH"],
+  "baseFilePath": "/assets/base.html",
+  "defaultNewsTemplateFilePath": "/assets/default_news_template.html",
+  "imgFilePath": "/assets/image.html",
+
+  "presets": [
+    {
+      "sectionTag": "NEWS",
+      "name": "default",
+      "templateFile": "/assets/default_news_template.html",
+      "parameters": {
+        "NEWS_DETAILS_URL": "https://clic.epfl.ch",
+        "BACKGROUND_COLOR": "black",
+        "TEXT_COLOR": "white",
+        "NEWS_IMAGE_URL": "",
+        "NEWS_IMAGE": "",
+        "NEWS_DESCRIPTION": "Pas de description",
+        "NEWS_DETAIL_LABEL": "en savoir plus",
+        "NEWS_TITLE": "Titre",
+        "NEWS_DATE": "Aujourd'hui"
+      }
+    },
+    {
+      "sectionTag": "COMMISSIONS",
+      "name": "CEVE",
+      "templateFile": "/assets/commissions.html",
+      "parameters": {
+        "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/MmpHMAWN5kmXnbo/download/CEVE.png",
+        "BACKGROUND_COLOR": "red",
+        "TEXT_COLOR": "white",
+        "NEWS_TITLE": "CEVE"
+      }
+    }
+  ]
+}

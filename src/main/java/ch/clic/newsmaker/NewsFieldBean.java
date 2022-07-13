@@ -1,5 +1,7 @@
 package ch.clic.newsmaker;
 
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
@@ -10,14 +12,15 @@ public class NewsFieldBean {
 
     private final StringProperty section = new SimpleStringProperty(); //the section where the field is
 
-    private final Map<Format.Language, Map<Format.Tags, StringProperty>> languageVariantPropertiesMap; // all language dependant properties (like description or title) are sorted by language here
+    private final Map<String, Map<Format.Tags, StringProperty>> languageVariantPropertiesMap; // all language dependant properties (like description or title) are sorted by language here
 
     private final Map<Format.Tags, StringProperty> languageInvariantPropertiesMap; // the others properties are stored here
 
-    public String base = Format.DEFAULT_NEWS_TEMPLATE;
+    private String template = "";
+
+    public final ObjectProperty<Format> formatProperty = new SimpleObjectProperty<>();
 
     public NewsFieldBean() {
-
         languageVariantPropertiesMap = new HashMap<>();
 
         languageInvariantPropertiesMap = new HashMap<>();
@@ -27,25 +30,19 @@ public class NewsFieldBean {
             }
         }
 
-        // default values
-        languageInvariantPropertiesMap.get(Format.Tags.NEWS_DETAILS_URL).setValue("https://clic.epfl.ch");
-        languageInvariantPropertiesMap.get(Format.Tags.BACKGROUND_COLOR).setValue("black");
-        languageInvariantPropertiesMap.get(Format.Tags.TEXT_COLOR).setValue("white");
-        languageInvariantPropertiesMap.get(Format.Tags.NEWS_IMAGE_URL).setValue("");
-        languageInvariantPropertiesMap.get(Format.Tags.NEWS_IMAGE).setValue("");
+        this.formatProperty.addListener((o)-> setLanguagesPropertiesMap());
+    }
 
-        for (Format.Language language : Format.Language.values()) {
+
+    private void setLanguagesPropertiesMap() {
+        for (String language : formatProperty.get().languages) {
+            if (languageVariantPropertiesMap.containsKey(language))
+                continue;
             HashMap<Format.Tags, StringProperty> map = new HashMap<>();
             for (Format.Tags tag : Format.Tags.values()) {
                 if (tag.isLanguageVariant)
                     map.put(tag, new SimpleStringProperty());
             }
-
-            // default values
-            map.get(Format.Tags.NEWS_DESCRIPTION).setValue("Pas de description");
-            map.get(Format.Tags.NEWS_DETAIL_LABEL).setValue("en savoir plus");
-            map.get(Format.Tags.NEWS_TITLE).setValue("Titre");
-            map.get(Format.Tags.NEWS_DATE).setValue("Aujourd'hui");
 
             languageVariantPropertiesMap.put(language, map);
         }
@@ -59,7 +56,7 @@ public class NewsFieldBean {
         }
     }
 
-    public String getPropertyValue(Format.Language language, Format.Tags tag) {
+    public String getPropertyValue(String language, Format.Tags tag) {
         if (!tag.isLanguageVariant)
             return languageInvariantPropertiesMap.get(tag).get();
         return languageVariantPropertiesMap.get(language).get(tag).get();
@@ -73,7 +70,7 @@ public class NewsFieldBean {
         }
     }
 
-    public StringProperty getProperty(Format.Language language, Format.Tags tag) {
+    public StringProperty getProperty(String language, Format.Tags tag) {
         if (!tag.isLanguageVariant)
             return languageInvariantPropertiesMap.get(tag);
         return languageVariantPropertiesMap.get(language).get(tag);
@@ -81,7 +78,7 @@ public class NewsFieldBean {
 
     public void setPropertyValue(Format.Tags tag, String value) {
         if (tag.isLanguageVariant) {
-            for (Format.Language language : Format.Language.values()) {
+            for (String language : formatProperty.get().languages) {
                 languageVariantPropertiesMap.get(language).get(tag).setValue(value);
             }
         } else {
@@ -89,12 +86,21 @@ public class NewsFieldBean {
         }
     }
 
-    public void setPropertyValue(Format.Language language, Format.Tags tag, String value) {
+    public void setPropertyValue(String language, Format.Tags tag, String value) {
         if (tag.isLanguageVariant) {
             languageVariantPropertiesMap.get(language).get(tag).setValue(value);
         } else {
             languageInvariantPropertiesMap.get(tag).setValue(value);
         }
+    }
+
+    public void updateWithPreset(Format.Preset preset) {
+        for (Format.Tags param : preset.parameters().keySet()) {
+            String value = preset.parameters().get(param);
+            setPropertyValue(param, value);
+        }
+        setSection(preset.sectionTag());
+        setTemplate(preset.template());
     }
 
     public StringProperty sectionProperty() {
@@ -109,15 +115,19 @@ public class NewsFieldBean {
         section.setValue(value);
     }
 
+    public void setTemplate(String value) {
+        this.template = value;
+    }
+
     /**
      * Build the HTML of the field by replacing all tags in the base template with corresponding value
      *
      * @param language the HTML can be build in any available language
      * @return a String containing the HTML
      */
-    public String getHTML(Format.Language language) {
+    public String getHTML(String language) {
 
-        String formatted = base;
+        String formatted = template;
 
         // replace all tags in the base template with corresponding value
         for (Format.Tags tag : Format.Tags.values()) {
@@ -128,6 +138,6 @@ public class NewsFieldBean {
         return formatted.replace(Format.Tags.NEWS_IMAGE.toString(),
                 getPropertyValue(Format.Tags.NEWS_IMAGE_URL).isEmpty()
                         ? ""
-                        : Format.IMG.replace(Format.Tags.NEWS_IMAGE_URL.toString(), getPropertyValue(Format.Tags.NEWS_IMAGE_URL)));
+                        : formatProperty.get().img.replace(Format.Tags.NEWS_IMAGE_URL.toString(), getPropertyValue(Format.Tags.NEWS_IMAGE_URL)));
     }
 }

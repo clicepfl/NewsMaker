@@ -1,214 +1,51 @@
 package ch.clic.newsmaker;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableSet;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ *  The Format class represent all the default (or not) parameters that the document will need, as languages, presets,
+ *  the HTML base template and all the assets needed to construct the final html file
+ */
 public class Format {
 
-    public static final String BASE = """
-            <!--
-            @author Noé Terrier
-            @brief Template of a newsletter for the CLIC and CLIC's commissions
-            \s
-            @date 02/03/2022
-            -->
-            \s
-            <html lang="fr">
-            <head>
-                <meta charset="UTF-8">
-                <meta http-equiv="X-UA-Compatible" content="IE=edge">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                \s
-                <title>Newsletter</title>
-            </head>
-            <body style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: medium; display: flex; justify-content:center;">
-                <div style="padding: 0; width: 100%; display: flex; align-content: center; justify-content:center;">
-                \s
-                    <div style="margin: auto; display: grid; border-radius: 30px; width: 40rem; width: min(40rem, 100%); padding: 1rem; background: rgb(42, 34, 54); background: linear-gradient(60deg, rgb(233, 30, 30) 0%, rgb(9,9,121) 50%, rgb(233, 30, 30) 100%); justify-content: center; color: lightgray">
-                        \s
-                        <!-- Pas affiché dans le mail mais dans la preview du mail -->
-                        <p style="display: none;"> Quoi de nouveau à la CLIC ? </p>
-                        \s
-                        <div style="display: grid; padding-top: 2rem; justify-content: center;">
-                            <img src="https://clic.epfl.ch/nextcloud/s/W7NfgqXWGNHTSYr/download/logo%20clic.png" alt="CLIC" style="width:10rem; font-size: 3rem; text-align: center; margin:auto" >
-                        \s
-                            <h1 style=" text-align: center; text-transform: uppercase; margin: 0.5rem 0 2rem 0; color: white;">Save the date !</h1>
-                        </div>
-                        \s
-                        <h2 style="padding-left: 1rem; text-transform: uppercase; font-style: oblique; color: white;">ENGLISH VERSION BELOW</h2>
-                        \s
-                        
-                        <!-- Début des news -->
-                        
-            @NEWS#FRANCAIS
-                        <h2 style="margin: 1rem 0 1rem 3rem; text-transform: uppercase; color: azure;">Commissions</h2>
-                        <div style=" color: aliceblue; background:linear-gradient(-60deg, rgb(233, 30, 30) 0%, rgb(12, 12, 54, 0.7) 100%); border-radius: 30px; overflow: hidden;">
-                            <div style="grid-template-columns: 1fr;">
-            @COMMISSIONS#FRANCAIS
-                            </div>
-                        </div>
-            
-                        
-                        <!-- Fin commissions -->
-            \s
-            \s
-                        <div style="margin-top: 1rem;">
-                            <div style="padding: 1rem 3rem 1rem 3rem; border-radius: 30px; margin-bottom: 1rem; display: grid; background: rgba(0, 0, 0, 0.3); background: linear-gradient(125deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1)100%);">
-                                <h2 style="margin: 3px 0 0 0; color: aliceblue;">Bons plans IC</h2>
-                                <p style="color: aliceblue;">Pour vous partager tous les bons plans IC, offres de stages ou bien tarifs préférentiels, la CLIC a créé le channel CLIC Bon Plan !</p>
-                                <a href="https://t.me/clic_bonsplans" style="margin-left: auto; margin-right: 0%;"><span  style="color: azure; font-style: oblique;">rejoindre le channel</span></a>
-                                
-                                <h2 style="margin: 3px 0 0 0; color: aliceblue;">La CLIC ça vous intéresse ?</h2>
-                                <p style="color: aliceblue;">Vous pouvez demander pour rejoindre une de nos équipes ou commissions et pourquoi pas postuler en tant que responsable de pôle pour l'année prochaine ! <br><br> Si ça vous intéresse, l'élection du prochain comité se fera lors de notre prochaine Assemblée Générale au mois de mai.</p>
-                                <a href="https://clic.epfl.ch/about" style="margin-left: auto; margin-right: 0%;"><span  style="color: azure; font-style: oblique;">en savoir plus</span></a>
-                            </div>
-                        </div>
-            \s
-            \s
-                        <!-- Réseaux sociaux -->
-                        <div>
-                            <div style="display: flex; flex-direction: row; justify-content: center; padding: 2rem;">
-                                <div style="margin: auto;">
-                                    <a href="https://clic.epfl.ch" style="text-decoration: none;"><span style=" padding: 0.5rem; color: white;">Website</span></a>|
-                                    <a href="https://go.epfl.ch/clic_telegram" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Telegram</span></a>|
-                                    <a href="https://go.epfl.ch/clic_twitter" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Twitter</span></a>|
-                                    <a href="https://go.epfl.ch/clic_insta" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Instagram</span></a>
-                                </div>
-                            </div>
-                        </div>
-            \s
-            \s
-            \s
-                        <hr style="width: 80%; color: aliceblue; margin: 2rem auto 2rem auto;">
-            \s
-                        <!-- #################################### -->
-                        <!-- ######### VERSION ANGLAISE ######### -->
-                        <!-- ##########VVVVVVVVVVVVVVVV########## -->
-                        \s
-            \s
-                        <div style="display: grid; padding-top: 2rem; justify-content: center;">
-                            <img style="font-size: 3rem; text-align: center; width:10rem; margin:auto"  src="https://clic.epfl.ch/nextcloud/s/W7NfgqXWGNHTSYr/download/logo%20clic.png" alt="CLIC">
-                  \s
-                            <h1 style=" text-align: center; text-transform: uppercase; margin: 0.5rem 0 2rem 0; color: white;">Save the date !</h1>
-                        </div>
-                      \s
-                        <h2 style="padding-left: 1rem; text-transform: uppercase; font-style: oblique; color: white;">VERSION FRANÇAISE AU DESSUS</h2>
-            \s
-                        <!-- Début des news -->
-                        
-            @NEWS#ENGLISH
-                        <h2 style="margin: 1rem 0 1rem 3rem; text-transform: uppercase; color: azure;">Commissions</h2>
-                        <div style=" color: aliceblue; background:linear-gradient(-60deg, rgb(233, 30, 30) 0%, rgb(12, 12, 54, 0.7) 100%); border-radius: 30px; overflow: hidden;">
-                            <div style="grid-template-columns: 1fr;">
-            @COMMISSIONS#ENGLISH
-                            </div>
-                        </div>
-                        
-                         <div style="margin-top: 1rem;">
-                            <div style="padding: 1rem 3rem 1rem 3rem; border-radius: 30px; margin-bottom: 1rem; display: grid; background: rgba(0, 0, 0, 0.3); background: linear-gradient(125deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1)100%);">
-                                <h2 style="margin: 0; color: aliceblue;">CLIC Bon Plans</h2>
-                                <p style="color: aliceblue;">CLIC has created a new channel, CLIC Bon Plans, to share with you exciting opportunities, from open internship positions to discounted tickets, keep an eye out here !</p>
-                                <a href="https://t.me/clic_bonsplans" style="margin-left: auto; margin-right: 0%;"><span  style="color: azure; font-style: oblique;">join the channel</span></a>
-                                
-                                <h2 style="margin: 0; color: aliceblue;">Are you interested in CLIC ?</h2>
-                                <p style="color: aliceblue;">You can apply to join one of our teams or committees and why not apply as a head of a unit for next year! <br><br> If you are interested, the election of the next committee will take place at our next General Assembly in May.</p>
-                                <a href="https://clic.epfl.ch/about" style="margin-left: auto; margin-right: 0%;"><span  style="color: azure; font-style: oblique;">more information</span></a>
-                            </div>
-                        </div>
-                        
-                        <!-- Réseaux sociaux -->
-                        <div>
-                            <div style="display: flex; flex-direction: row; justify-content: center; padding: 2rem;">
-                                <div style="margin: auto;">
-                                    <a href="https://clic.epfl.ch" style="text-decoration: none;"><span style=" padding: 0.5rem; color: white;">Website</span></a>|
-                                    <a href="https://go.epfl.ch/clic_telegram" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Telegram</span></a>|
-                                    <a href="https://go.epfl.ch/clic_twitter" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Twitter</span></a>|
-                                    <a href="https://go.epfl.ch/clic_insta" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Instagram</span></a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </body>
-            </html>
-            """;
-    public static final String DEFAULT_NEWS_TEMPLATE = """
-            <div>
-                <div style="padding: 1rem 3rem 1rem 3rem; border-radius: 30px; margin-bottom: 1rem; display: grid; background: rgba(0, 0, 0, 0.3); background: linear-gradient(125deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1)100%);">
-                    @NEWS_IMAGE
-                    <h2 style="margin: 0; color: aliceblue;">@NEWS_TITLE</h2>
-                    <p style="margin: 0; padding: 0; font-style: oblique;">Date: @NEWS_DATE</p>
-                    <p style="margin-top: 1rem;">@NEWS_DESCRIPTION</p>
-                    <a href="@NEWS_DETAILS_URL" style="margin-left: auto; margin-right: 0;"><span style="color: azure; font-style: oblique;">@NEWS_DETAIL_LABEL</span></a>
-                </div>
-            </div>
-            """;
+    /**
+     * A Preset for the field with preconfigured parameters like background color, image url or description
+     *
+     * @param name the name of the preset
+     * @param template the template associated with the preset
+     * @param sectionTag the section in which the preset belong
+     * @param parameters all the preconfigured parameters of the preset (a value for each tag of the <code>Tags</code> enum)
+     */
+    public record Preset(String name, String template, String sectionTag, Map<Tags, String> parameters){
 
-    public static final String IMG = """
-            <div style="width: 100%; display: flex; justify-content: center;">
-                <img src="@NEWS_IMAGE_URL"; alt="event image" style="font-size: 2rem; height: 7rem;">
-            </div>
-            """;
-
-    private static final String COMMISSION_TEMPLATE = """
-            <div style="padding: 1rem; background-color: @BACKGROUND_COLOR;">
-                <div style="display: grid; padding: 1rem;">
-                    <div>
-                        <img src="@NEWS_IMAGE_URL" style="font-size: 2rem; width: 7rem;" alt="commission image">
-                    </div>
-                    <h2 style="margin: 1rem 0 0 0; color: @TEXT_COLOR;">@NEWS_TITLE</h2>
-                    <p style="color: @TEXT_COLOR; margin: 0; padding: 0; font-style: oblique;">Date: @NEWS_DATE</p>
-                    <p style="color: @TEXT_COLOR;">@NEWS_DESCRIPTION</p>
-                    <a href="@NEWS_DETAILS_URL" style="margin-left: auto; margin-right: 0%;"><span style="color: @TEXT_COLOR; font-style: oblique;">@NEWS_DETAIL_LABEL</span></a>
-                </div>
-            </div>
-            """;
-
-    public enum Preset {
-        NONE(null, null, null),
-
-        CEVE("COMMISSIONS", COMMISSION_TEMPLATE, new HashMap<>() {{
-            put(Tags.NEWS_IMAGE_URL, "https://clic.epfl.ch/nextcloud/s/MmpHMAWN5kmXnbo/download/CEVE.png");
-            put(Tags.BACKGROUND_COLOR, "red");
-            put(Tags.TEXT_COLOR, "white");
-            put(Tags.NEWS_TITLE, "CEVE");
-        }}),
-        GAME_STAR("COMMISSIONS", COMMISSION_TEMPLATE, new HashMap<>() {{
-            put(Tags.NEWS_IMAGE_URL, "https://clic.epfl.ch/nextcloud/s/LXWiks46dWH3ZE3/download/game%20star%20logo.png");
-            put(Tags.BACKGROUND_COLOR, "grey");
-            put(Tags.TEXT_COLOR, "white");
-            put(Tags.NEWS_TITLE, "Game*");
-        }}),
-        ORBITAL_GAME_JAM("COMMISSIONS", COMMISSION_TEMPLATE, new HashMap<>() {{
-            put(Tags.NEWS_IMAGE_URL, "https://clic.epfl.ch/nextcloud/s/42ATMkKr3JSJtFJ/download/logo%20ogj.png");
-            put(Tags.BACKGROUND_COLOR, "blue");
-            put(Tags.TEXT_COLOR, "black");
-            put(Tags.NEWS_TITLE, "Orbital Game Jam");
-        }}),
-        POLYGLOT("COMMISSIONS", COMMISSION_TEMPLATE, new HashMap<>() {{
-            put(Tags.NEWS_IMAGE_URL, "red");
-            put(Tags.BACKGROUND_COLOR, "red");
-            put(Tags.TEXT_COLOR, "white");
-            put(Tags.NEWS_TITLE, "Polyglot");
-        }}),
-        IC_TRAVEL("COMMISSIONS", COMMISSION_TEMPLATE, new HashMap<>() {{
-            put(Tags.NEWS_IMAGE_URL, "https://clic.epfl.ch/nextcloud/s/xa64WXekgoHmYSA/download/logo%20ic%20travel.png");
-            put(Tags.BACKGROUND_COLOR, "yellow");
-            put(Tags.TEXT_COLOR, "white");
-            put(Tags.NEWS_TITLE, "IC Travel");
-        }});
-
-        public final String template;
-        public final String sectionTag;
-        public final Map<Tags, String> parameters;
-
-        Preset(String sectionTag, String template, Map<Tags, String> parameters) {
-            this.sectionTag = sectionTag;
-            this.template = template;
-            this.parameters = parameters;
+        @Override
+        public String toString() {
+            return name;
         }
     }
 
+    /**
+     * The tags identify a part of the template to remplace with a text value
+     *
+     * For exemple, the <code>@NEWS_TITLE</code> tag in the html base template will be replaced by the corresponding title of a news
+     */
     public enum Tags {
         BACKGROUND_COLOR,
         TEXT_COLOR,
@@ -220,6 +57,7 @@ public class Format {
         NEWS_DETAILS_URL,
         NEWS_IMAGE;
 
+        // this boolean identify if the tag will have different value according to all the possible language defined
         public final boolean isLanguageVariant;
 
         Tags() {
@@ -236,15 +74,160 @@ public class Format {
         }
     }
 
-    public enum Language {
-        FRANCAIS,
-        ENGLISH;
 
-        @Override
-        public String toString() {
-            return super.toString().toLowerCase();
+    public String base; // the first html template in which elements will be inserted
+    public String defaultNewsTemplate; // the template of a default div
+    public String img; // html for how to display an img div by default
+    public List<Preset> presets; // list of all preconfigured presets
+
+    public ObservableSet<String> languages; // set of all languages in which the document will be redacted
+
+    /**
+     * Constructor of a <code>Format</code> object
+     *
+     * @param base the first html template in which elements will be inserted
+     * @param defaultNewsTemplate the template of a default div
+     * @param img html for how to display an img div by default
+     * @param presets list of all preconfigured presets
+     * @param languages set of all languages in which the document will be redacted
+     */
+    public Format(String base, String defaultNewsTemplate, String img, List<Preset> presets, Set<String> languages) {
+        this.base = base;
+        this.defaultNewsTemplate = defaultNewsTemplate;
+        this.img = img;
+        this.presets = presets;
+        this.languages = FXCollections.observableSet(languages);
+    }
+
+    /**
+     * Open the file from <code>path</code> read the content and return it as a <code>String</code>
+     *
+     * @param path the path of the file
+     * @return the content of the file as a <code>String</code>
+     * @throws IOException return <code>IOException</code> in case of an input-output exception (the file doesn't exist)
+     */
+    static private String readContentOfFile(String path) throws IOException {
+        InputStream file = Format.class.getResourceAsStream(path);
+        assert file != null;
+        return readContentOfFile(file);
+    }
+
+    /**
+     * Open the file from <code>inputStream</code> read the content and return it as a <code>String</code>
+     *
+     * @param inputStream the stream of the file
+     * @return the content of the file as a <code>String</code>
+     * @throws IOException throws <code>IOException</code> in case of an input-output exception (the file doesn't exist)
+     */
+    static private String readContentOfFile(InputStream inputStream) throws IOException {
+        final ByteArrayOutputStream result = new ByteArrayOutputStream();
+        final byte[] buffer = new byte[1024];
+        int length;
+
+        while ((length = inputStream.read(buffer)) != -1) {
+            result.write(buffer, 0, length);
+        }
+
+        return result.toString();
+    }
+
+    /**
+     * Read the content of a file and return it as a <code>String</code>
+     *
+     * @param file the file to read
+     * @return the content of the file as a <code>String</code>
+     */
+    static private String readContentOfFile(File file) {
+        try (FileReader fileReader = new FileReader(file)) {
+            StringBuilder stringBuilder = new StringBuilder();
+            int c;
+            while ((c = fileReader.read()) != -1)
+                stringBuilder.append((char) c);
+            return stringBuilder.toString();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-}
+    /**
+     * Construct a <code>Format</code> object from a json file (config.json by default)
+     *
+     * @param file the file in which the json has to be read
+     * @return a <code>Format</code> object
+     * @throws IOException throws <code>IOException</code> in case of an input-output exception (the file doesn't exist)
+     */
+    static public Format fromJSON(File file) throws IOException {
 
+        String json = readContentOfFile(file);
+
+        ObjectMapper om = new ObjectMapper();
+        JsonNode node = om.readTree(json);
+
+
+        String base;
+        String defaultNewsTemplate;
+        String img;
+        base = readContentOfFile(node.get("baseFilePath").asText());
+        defaultNewsTemplate = readContentOfFile(node.get("defaultNewsTemplateFilePath").asText());
+        img = readContentOfFile(node.get("imgFilePath").asText());
+
+        List<Preset> presets = extractPresets(node);
+
+        Set<String> languages = new HashSet<>();
+        for (JsonNode jsonNode : node.get("languages")) {
+            languages.add(jsonNode.asText());
+        }
+
+        return new Format(base, defaultNewsTemplate, img, presets, languages);
+    }
+
+    /**
+     * Extract presets from a json object
+     *
+     * @param node the json object containing the presets configurations
+     * @return the list of presets extracted
+     * @throws IOException throws <code>IOException</code> in case of an input-output exception
+     */
+    static private List<Preset> extractPresets(JsonNode node) throws IOException {
+        List<Preset> presets = new ArrayList<>();
+        JsonNode jsonNode = node.get("presets");
+
+        for (JsonNode nodePreset : jsonNode) {
+
+            String name = nodePreset.get("name").asText();
+            String sectionTag = nodePreset.get("sectionTag").asText();
+            String templateFile = nodePreset.get("templateFile").asText();
+
+            String template = readContentOfFile(templateFile);
+
+            HashMap<Tags, String> parameters = new HashMap<>();
+            JsonNode nodeParams = nodePreset.get("parameters");
+
+            Iterator<String> fieldsIt = nodeParams.fieldNames();
+
+            while (fieldsIt.hasNext()) {
+                String fieldName = fieldsIt.next();
+                for (Format.Tags tag : Format.Tags.values()) {
+                    if (tag.name().equals(fieldName)) {
+                        parameters.put(tag, nodeParams.get(fieldName).asText());
+                        break;
+                    }
+                }
+            }
+
+            presets.add(new Format.Preset(name, template, sectionTag, parameters));
+
+        }
+        return presets;
+    }
+
+    /**
+     * return the JSON of the <code>Format</code> object
+     *
+     * @return the JSON of the <code>Format</code> object
+     * @throws JsonProcessingException in case of a JSON error
+     */
+    public String toJSON() throws JsonProcessingException {
+        return new ObjectMapper().writeValueAsString(this);
+    }
+}

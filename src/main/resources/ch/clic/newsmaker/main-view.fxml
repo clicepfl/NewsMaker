@@ -22,8 +22,8 @@
     <MenuBar styleClass="menu-bar">
         <Menu styleClass="menu-button" text="File">
             <MenuItem text="Save" onAction="#openFile" disable="true"/>
-            <MenuItem text="Save as" onAction="#openFile" disable="true"/>
-            <MenuItem text="Open file" onAction="#openFile" disable="true"/>
+            <MenuItem text="Save as" onAction="#saveAs"/>
+            <MenuItem text="Open file" onAction="#openFile"/>
             <MenuItem text="Export file" onAction="#exportFile"/>
         </Menu>
     </MenuBar>
