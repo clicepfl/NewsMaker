@@ -181,6 +181,16 @@
     -fx-background-insets: 5px;
 }
 
+.delete-button {
+    -fx-border-color: #833131;
+    -fx-text-fill: #833131;
+}
+
+.delete-button:hover {
+    -fx-background-color: #833131;
+    -fx-text-fill: white;
+}
+
 .web-view {
     -fx-fill-height: true;
 }

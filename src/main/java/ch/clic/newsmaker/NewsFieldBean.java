@@ -88,10 +88,18 @@ public class NewsFieldBean {
 
     public void setPropertyValue(String language, Format.Tags tag, String value) {
         if (tag.isLanguageVariant) {
+            languageVariantPropertiesMap.putIfAbsent(language, new HashMap<>());
+            languageVariantPropertiesMap.get(language).putIfAbsent(tag, new SimpleStringProperty());
             languageVariantPropertiesMap.get(language).get(tag).setValue(value);
         } else {
             languageInvariantPropertiesMap.get(tag).setValue(value);
         }
+    }
+    public Map<Format.Tags, StringProperty> getLanguageConstantPropertiesMap() {
+        return languageInvariantPropertiesMap;
+    }
+    public Map<String, Map<Format.Tags, StringProperty>> getLanguageVariablePropertiesMap() {
+        return languageVariantPropertiesMap;
     }
 
     public void updateWithPreset(Format.Preset preset) {
@@ -113,6 +121,10 @@ public class NewsFieldBean {
 
     public void setSection(String value) {
         section.setValue(value);
+    }
+
+    public String getTemplate() {
+        return template;
     }
 
     public void setTemplate(String value) {

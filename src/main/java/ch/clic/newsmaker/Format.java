@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableSet;
+import javafx.collections.ObservableList;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -13,11 +13,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  *  The Format class represent all the default (or not) parameters that the document will need, as languages, presets,
@@ -80,7 +78,7 @@ public class Format {
     public String img; // html for how to display an img div by default
     public List<Preset> presets; // list of all preconfigured presets
 
-    public ObservableSet<String> languages; // set of all languages in which the document will be redacted
+    public ObservableList<String> languages; // set of all languages in which the document will be redacted
 
     /**
      * Constructor of a <code>Format</code> object
@@ -91,12 +89,12 @@ public class Format {
      * @param presets list of all preconfigured presets
      * @param languages set of all languages in which the document will be redacted
      */
-    public Format(String base, String defaultNewsTemplate, String img, List<Preset> presets, Set<String> languages) {
+    public Format(String base, String defaultNewsTemplate, String img, List<Preset> presets, List<String> languages) {
         this.base = base;
         this.defaultNewsTemplate = defaultNewsTemplate;
         this.img = img;
         this.presets = presets;
-        this.languages = FXCollections.observableSet(languages);
+        this.languages = FXCollections.observableList(languages);
     }
 
     /**
@@ -173,7 +171,7 @@ public class Format {
 
         List<Preset> presets = extractPresets(node);
 
-        Set<String> languages = new HashSet<>();
+        List<String> languages = new ArrayList<>();
         for (JsonNode jsonNode : node.get("languages")) {
             languages.add(jsonNode.asText());
         }
@@ -204,15 +202,9 @@ public class Format {
             JsonNode nodeParams = nodePreset.get("parameters");
 
             Iterator<String> fieldsIt = nodeParams.fieldNames();
-
             while (fieldsIt.hasNext()) {
                 String fieldName = fieldsIt.next();
-                for (Format.Tags tag : Format.Tags.values()) {
-                    if (tag.name().equals(fieldName)) {
-                        parameters.put(tag, nodeParams.get(fieldName).asText());
-                        break;
-                    }
-                }
+                parameters.put(Tags.valueOf(fieldName), nodeParams.get(fieldName).asText());
             }
 
             presets.add(new Format.Preset(name, template, sectionTag, parameters));

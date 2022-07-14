@@ -1,6 +1,9 @@
 package ch.clic.newsmaker;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleIntegerProperty;
@@ -24,6 +27,8 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -31,11 +36,19 @@ public class MainController {
 
     private static final String CONFIG_FILE_PATH = "/config/config.json";
     private static final String DEFAULT_SECTION = "NEWS";
-    private final HashMap<String, ArrayList<NewsFieldBean>> fieldSectionMap = new HashMap<>(); //fields are sorted by sections
+    private static final String SECTION_TAG = "section";
+    private static final String TEMPLATE_TAG = "template";
+    private static final String LANGUAGE_CONSTANT_PROPERTIES_TAG = "language-constant-properties";
+    private static final String LANGUAGE_VARIABLE_PROPERTIES_TAG = "language-variable-properties";
+    private static final FileChooser.ExtensionFilter HTML_FILTER = new FileChooser.ExtensionFilter("HTML files", "*.html", "*.HTML");
+    private static final FileChooser.ExtensionFilter NMKR_FILTER = new FileChooser.ExtensionFilter("NewsMaker files (.nmkr)", "*.nmkr");
+    private final HashMap<String, List<NewsFieldBean>> fieldSectionMap = new HashMap<>(); //fields are sorted by sections
     private static Format.Preset defaultPreset;
     private final IntegerProperty numberOfFields = new SimpleIntegerProperty(0);
 
     private final ObjectProperty<Format> formatProperty = new SimpleObjectProperty<>();
+
+    private final ObjectProperty<File> recentFileProperty = new SimpleObjectProperty<>();
     @FXML
     public WebView preview; // used for previewing the HTML file
     @FXML
@@ -62,16 +75,25 @@ public class MainController {
      */
     @FXML
     protected void addFieldButtonClick(){
-        NewsFieldBean fieldBean = new NewsFieldBean();
-        fieldBean.formatProperty.bind(formatProperty);
-        fieldSectionMap.get(DEFAULT_SECTION).add(fieldBean);
-        fieldBean.setSection(DEFAULT_SECTION);
-        fieldBean.setTemplate(formatProperty.get().defaultNewsTemplate);
-
+        NewsFieldBean fieldBean = createNewsFieldBean(DEFAULT_SECTION);
         fieldBean.updateWithPreset(defaultPreset);
+    }
 
+    /**
+     * Create a new field bean with bindings and corresponding JavaFX nodes
+     *
+     * @param section the section in which the bean belong
+     * @return a new <code>NewsFieldBean</code>
+     */
+    private NewsFieldBean createNewsFieldBean(String section) {
+        NewsFieldBean fieldBean = new NewsFieldBean();
+        fieldSectionMap.putIfAbsent(section, new ArrayList<>());
+        fieldSectionMap.get(section).add(fieldBean);
+        fieldBean.setSection(section);
+        fieldBean.formatProperty.bind(formatProperty);
         fields.getChildren().add(fields.getChildren().size()-1, createField(fieldBean));
         numberOfFields.setValue(numberOfFields.intValue()+1);
+        return fieldBean;
     }
 
     /**
@@ -79,31 +101,132 @@ public class MainController {
      */
     @FXML
     protected void exportFile() {
-        FileChooser fileChooser = createFileChooser("Export file", new FileChooser.ExtensionFilter("HTML files", "*.html", "*.HTML"));
+        FileChooser fileChooser = createFileChooser("Export file", HTML_FILTER);
         File file = fileChooser.showSaveDialog(fields.getScene().getWindow());
         saveInFile(buildHTML(), file);
     }
 
     @FXML
-    protected void openFile() throws IOException {
-        FileChooser fileChooser = createFileChooser("Open file",  new FileChooser.ExtensionFilter("NewsMaker files (.nmkr)", "*.nmkr"));
+    protected void openFormat() throws IOException {
+        FileChooser fileChooser = createFileChooser("Open file",  NMKR_FILTER);
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
         formatProperty.setValue(Format.fromJSON(file));
     }
 
+    /**
+     *  Quick way to save if already saved before
+     */
+    @FXML
+    public void save() {
+        if (recentFileProperty.isNotNull().get()) {
+            saveInFile(recentFileProperty.get());
+        } else {
+            saveAs();
+        }
+    }
+
+    /**
+     * The user can choose a file by a dialog and save the current edition of the docuement
+     */
     @FXML
     public void saveAs() {
-        FileChooser fileChooser = createFileChooser("Save as", new FileChooser.ExtensionFilter("NewsMaker files (.nmkr)", "*.nmkr"));
+        FileChooser fileChooser = createFileChooser("Save as", NMKR_FILTER);
         File file = fileChooser.showSaveDialog(fields.getScene().getWindow());
+        recentFileProperty.setValue(file);
+        saveInFile(file);
+    }
 
-        String content;
-        try {
-            content = formatProperty.get().toJSON();
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            content = e.getMessage();
+    /**
+     * Save all <code>NewsFieldBean</code> object in a json file (.nmkr)
+     *
+     * @param file the file where to save the beans
+     */
+    private void saveInFile(File file) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode rootNode = objectMapper.createObjectNode();
+
+        for (String sectionTag : fieldSectionMap.keySet()) {
+            ArrayNode sectionNode = objectMapper.createArrayNode();
+
+            for (NewsFieldBean newsFieldBean : fieldSectionMap.get(sectionTag)) {
+                ObjectNode newsFieldBeanNode = objectMapper.createObjectNode();
+                newsFieldBeanNode.put(SECTION_TAG, newsFieldBean.getSection());
+                newsFieldBeanNode.put(TEMPLATE_TAG, newsFieldBean.getTemplate());
+
+                ObjectNode languageConstantPropertiesNode = objectMapper.createObjectNode();
+                newsFieldBean.getLanguageConstantPropertiesMap()
+                             .forEach((tag, value) -> languageConstantPropertiesNode.put(tag.name(), value.get()));
+
+                newsFieldBeanNode.set(LANGUAGE_CONSTANT_PROPERTIES_TAG, languageConstantPropertiesNode);
+
+                ObjectNode languageVariablePropertiesNode = objectMapper.createObjectNode();
+
+                for (String language : formatProperty.get().languages) {
+                    ObjectNode languageNode = objectMapper.createObjectNode();
+                    newsFieldBean.getLanguageVariablePropertiesMap().get(language)
+                                 .forEach((tag, value) -> languageNode.put(tag.name(), value.get()));
+                    languageVariablePropertiesNode.set(language, languageNode);
+                }
+
+                newsFieldBeanNode.set(LANGUAGE_VARIABLE_PROPERTIES_TAG, languageVariablePropertiesNode);
+                sectionNode.add(newsFieldBeanNode);
+            }
+            rootNode.set(sectionTag, sectionNode);
         }
-        saveInFile(content, file);
+
+        saveInFile(rootNode.toPrettyString(), file);
+    }
+
+    /**
+     * Open a file
+     *
+     * @throws IOException if the file is corrupted
+     */
+    @FXML
+    public void openFile() throws IOException {
+        FileChooser fileChooser = createFileChooser("Open file", NMKR_FILTER);
+        File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
+
+        fieldSectionMap.forEach((section, list) -> list.clear());      //clear sections
+        fields.getChildren().remove(0, fields.getChildren().size()-1); //clear javaFX nodes linked to beans
+        numberOfFields.setValue(0);                                    //reset beans counter
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+
+        Iterator<String> sectionIt = rootNode.fieldNames();
+        while (sectionIt.hasNext()) {
+            String sectionTag = sectionIt.next();
+            for (JsonNode newsNode : rootNode.get(sectionTag)) {
+                NewsFieldBean newsFieldBean = createNewsFieldBean(sectionTag);
+
+                newsFieldBean.setSection(newsNode.get(SECTION_TAG).asText());
+                newsFieldBean.setTemplate(newsNode.get(TEMPLATE_TAG).asText());
+
+
+                JsonNode languageConstantNode = newsNode.get(LANGUAGE_CONSTANT_PROPERTIES_TAG);
+                Iterator<String> lcIt = languageConstantNode.fieldNames();
+                while (lcIt.hasNext()) {
+                    String param = lcIt.next();
+                    newsFieldBean.setPropertyValue(Format.Tags.valueOf(param), languageConstantNode.get(param).asText());
+                }
+
+                JsonNode languageVariableNode = newsNode.get(LANGUAGE_VARIABLE_PROPERTIES_TAG);
+                Iterator<String> languageIt = languageVariableNode.fieldNames();
+                while (languageIt.hasNext()) {
+                    String language = languageIt.next();
+                    Iterator<String> paramIt = languageVariableNode.get(language).fieldNames();
+                    while (paramIt.hasNext()) {
+                        String param = paramIt.next();
+                        newsFieldBean.setPropertyValue(
+                                language,
+                                Format.Tags.valueOf(param),
+                                languageVariableNode.get(language).get(param).asText()
+                        );
+                    }
+                }
+            }
+        }
     }
 
     /**
@@ -183,7 +306,7 @@ public class MainController {
 
         TabPane tabPane = new TabPane();
 
-        for (String language : formatProperty.get().languages) {
+        for (String language : fieldBean.formatProperty.get().languages) {
             TextArea ta = new TextArea();
             ta.textProperty().bindBidirectional(fieldBean.getProperty(language, Format.Tags.NEWS_DESCRIPTION));
 
@@ -242,6 +365,7 @@ public class MainController {
             fieldSectionMap.get(fieldBean.getSection()).remove(fieldBean);
             fields.getChildren().remove(vb);
         });
+        rb.getStyleClass().add("delete-button");
 
         vb.getChildren().add(0, rb);
         return vb;

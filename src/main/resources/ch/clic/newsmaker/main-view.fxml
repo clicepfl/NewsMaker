@@ -21,10 +21,13 @@
 
     <MenuBar styleClass="menu-bar">
         <Menu styleClass="menu-button" text="File">
-            <MenuItem text="Save" onAction="#openFile" disable="true"/>
-            <MenuItem text="Save as" onAction="#saveAs"/>
             <MenuItem text="Open file" onAction="#openFile"/>
+            <MenuItem text="Save" onAction="#save"/>
+            <MenuItem text="Save as" onAction="#saveAs"/>
             <MenuItem text="Export file" onAction="#exportFile"/>
+        </Menu>
+        <Menu styleClass="menu-button" text="Format">
+            <MenuItem text="Open format" onAction="#openFormat" disable="true"/>
         </Menu>
     </MenuBar>
 
