@@ -154,9 +154,9 @@ public class Format {
      * @return a <code>Format</code> object
      * @throws IOException throws <code>IOException</code> in case of an input-output exception (the file doesn't exist)
      */
-    static public Format fromJSON(File file) throws IOException {
+    static public Format fromJSON(InputStream inputStream) throws IOException {
 
-        String json = readContentOfFile(file);
+        String json = readContentOfFile(inputStream);
 
         ObjectMapper om = new ObjectMapper();
         JsonNode node = om.readTree(json);

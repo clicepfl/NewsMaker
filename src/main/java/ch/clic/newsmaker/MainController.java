@@ -20,8 +20,10 @@ import javafx.stage.FileChooser;
 import javafx.scene.web.WebView;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -55,10 +57,9 @@ public class MainController {
     private VBox fields;
 
     public MainController() throws URISyntaxException, IOException {
-        URL configURL = Format.class.getResource(CONFIG_FILE_PATH);
+        InputStream configStream = Format.class.getResourceAsStream(CONFIG_FILE_PATH);
 
-        assert configURL != null;
-        formatProperty.setValue(Format.fromJSON(new File(configURL.toURI())));
+        formatProperty.setValue(Format.fromJSON(configStream));
 
         defaultPreset = formatProperty.get().presets.get(0);
 
@@ -110,7 +111,8 @@ public class MainController {
     protected void openFormat() throws IOException {
         FileChooser fileChooser = createFileChooser("Open file",  NMKR_FILTER);
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
-        formatProperty.setValue(Format.fromJSON(file));
+        InputStream inputStream = new FileInputStream(file);
+        formatProperty.setValue(Format.fromJSON(inputStream));
     }
 
     /**

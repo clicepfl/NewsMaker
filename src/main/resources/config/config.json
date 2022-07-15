@@ -27,9 +27,42 @@
       "templateFile": "/assets/commissions.html",
       "parameters": {
         "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/MmpHMAWN5kmXnbo/download/CEVE.png",
-        "BACKGROUND_COLOR": "red",
+        "BACKGROUND_COLOR": "rgb(243, 52, 52)",
         "TEXT_COLOR": "white",
         "NEWS_TITLE": "CEVE"
+      }
+    },
+    {
+      "sectionTag": "COMMISSIONS",
+      "name": "Orbital Game Jam",
+      "templateFile": "/assets/commissions.html",
+      "parameters": {
+        "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/42ATMkKr3JSJtFJ/download/logo%20ogj.png",
+        "BACKGROUND_COLOR": "rgb(226, 246, 255)",
+        "TEXT_COLOR": "black",
+        "NEWS_TITLE": "Orbital Game Jam"
+      }
+    },
+    {
+      "sectionTag": "COMMISSIONS",
+      "name": "Game*",
+      "templateFile": "/assets/commissions.html",
+      "parameters": {
+        "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/LXWiks46dWH3ZE3/download/game%20star%20logo.png",
+        "BACKGROUND_COLOR": "rgb(54, 52, 52)",
+        "TEXT_COLOR": "white",
+        "NEWS_TITLE": "Game*"
+      }
+    },
+    {
+      "sectionTag": "COMMISSIONS",
+      "name": "IC Travel",
+      "templateFile": "/assets/commissions.html",
+      "parameters": {
+        "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/xa64WXekgoHmYSA/download/logo%20ic%20travel.png",
+        "BACKGROUND_COLOR": "rgb(255, 205, 40)",
+        "TEXT_COLOR": "aliceblue",
+        "NEWS_TITLE": "IC Travel"
       }
     }
   ]
