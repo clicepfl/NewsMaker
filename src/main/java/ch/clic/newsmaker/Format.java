@@ -3,6 +3,8 @@ package ch.clic.newsmaker;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -41,7 +43,7 @@ public class Format {
 
     /**
      * The tags identify a part of the template to remplace with a text value
-     *
+     * <p>
      * For exemple, the <code>@NEWS_TITLE</code> tag in the html base template will be replaced by the corresponding title of a news
      */
     public enum Tags {
@@ -73,7 +75,7 @@ public class Format {
     }
 
 
-    public String base; // the first html template in which elements will be inserted
+    public StringProperty baseProperty = new SimpleStringProperty(); // the first html template in which elements will be inserted
     public String defaultNewsTemplate; // the template of a default div
     public String img; // html for how to display an img div by default
     public List<Preset> presets; // list of all preconfigured presets
@@ -90,7 +92,7 @@ public class Format {
      * @param languages set of all languages in which the document will be redacted
      */
     public Format(String base, String defaultNewsTemplate, String img, List<Preset> presets, List<String> languages) {
-        this.base = base;
+        this.baseProperty.set(base);
         this.defaultNewsTemplate = defaultNewsTemplate;
         this.img = img;
         this.presets = presets;
@@ -150,7 +152,7 @@ public class Format {
     /**
      * Construct a <code>Format</code> object from a json file (config.json by default)
      *
-     * @param file the file in which the json has to be read
+     * @param inputStream the inputStream in which the json has to be read
      * @return a <code>Format</code> object
      * @throws IOException throws <code>IOException</code> in case of an input-output exception (the file doesn't exist)
      */
@@ -213,13 +215,11 @@ public class Format {
         return presets;
     }
 
-    /**
-     * return the JSON of the <code>Format</code> object
-     *
-     * @return the JSON of the <code>Format</code> object
-     * @throws JsonProcessingException in case of a JSON error
-     */
-    public String toJSON() throws JsonProcessingException {
-        return new ObjectMapper().writeValueAsString(this);
+    public StringProperty getBaseProperty() {
+        return baseProperty;
+    }
+
+    public String getBase() {
+        return baseProperty.get();
     }
 }

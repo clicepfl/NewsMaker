@@ -30,6 +30,8 @@
     -fx-border-insets: 10px;
     -fx-background-insets: 10px;
     -fx-background-color: -fx-primary-color;
+    -fx-colum: 20em;
+    -fx-wrap-text: true;
 }
 
 .text-area .content {
@@ -109,6 +111,10 @@
 .scroll-pane {
     -fx-fill-width: true;
     -fx-alignment: center;
+    -fx-background-color: transparent;
+}
+
+.corner {
     -fx-background-color: transparent;
 }
 
@@ -216,4 +222,10 @@
 .main-pane {
     -fx-fill-height: true;
     -fx-fill-width: true;
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+}
+
+#formatEditor {
+    -fx-font: 15 monospace;
 }

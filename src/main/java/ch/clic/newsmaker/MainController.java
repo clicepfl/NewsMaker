@@ -14,6 +14,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
@@ -25,13 +26,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 
 public class MainController {
@@ -53,10 +54,12 @@ public class MainController {
     private final ObjectProperty<File> recentFileProperty = new SimpleObjectProperty<>();
     @FXML
     public WebView preview; // used for previewing the HTML file
+    public AnchorPane mainPane;
+    public TextArea formatEditor;
     @FXML
     private VBox fields;
 
-    public MainController() throws URISyntaxException, IOException {
+    public MainController() throws IOException {
         InputStream configStream = Format.class.getResourceAsStream(CONFIG_FILE_PATH);
 
         formatProperty.setValue(Format.fromJSON(configStream));
@@ -70,6 +73,13 @@ public class MainController {
             }
         }
     }
+
+
+    @FXML
+    public void initialize() {
+        formatEditor.textProperty().bindBidirectional(formatProperty.get().getBaseProperty());
+    }
+
 
     /**
      * Add a field in the default section
@@ -188,6 +198,7 @@ public class MainController {
     public void openFile() throws IOException {
         FileChooser fileChooser = createFileChooser("Open file", NMKR_FILTER);
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
+        recentFileProperty.setValue(file);
 
         fieldSectionMap.forEach((section, list) -> list.clear());      //clear sections
         fields.getChildren().remove(0, fields.getChildren().size()-1); //clear javaFX nodes linked to beans
@@ -275,7 +286,7 @@ public class MainController {
      */
     private String buildHTML() {
 
-        String base = formatProperty.get().base;
+        String base = formatProperty.get().getBase();
 
         for (String language : formatProperty.get().languages) {
             for (String section : fieldSectionMap.keySet()) {
@@ -410,4 +421,5 @@ public class MainController {
         hb.getStyleClass().add("HBox");
         return hb;
     }
+
 }
