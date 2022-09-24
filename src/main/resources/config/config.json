@@ -61,8 +61,19 @@
       "parameters": {
         "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/xa64WXekgoHmYSA/download/logo%20ic%20travel.png",
         "BACKGROUND_COLOR": "rgb(255, 205, 40)",
-        "TEXT_COLOR": "aliceblue",
+        "TEXT_COLOR": "black",
         "NEWS_TITLE": "IC Travel"
+      }
+    },
+    {
+      "sectionTag": "COMMISSIONS",
+      "name": "Polygl0ts",
+      "templateFile": "/assets/commissions.html",
+      "parameters": {
+        "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/PaYefswxrBMrHkw/download/polygl0ts.png",
+        "BACKGROUND_COLOR": "white",
+        "TEXT_COLOR": "black",
+        "NEWS_TITLE": "Polyg0ts"
       }
     }
   ]
