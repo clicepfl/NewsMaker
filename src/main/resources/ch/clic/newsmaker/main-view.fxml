@@ -17,7 +17,6 @@
 <?import javafx.scene.control.Tab?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.Label?>
 <AnchorPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="ch.clic.newsmaker.MainController"
             fx:id="mainPane"

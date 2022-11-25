@@ -1,6 +1,5 @@
 package ch.clic.newsmaker;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javafx.beans.property.SimpleStringProperty;
@@ -8,11 +7,9 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -24,6 +21,8 @@ import java.util.Map;
  *  the HTML base template and all the assets needed to construct the final html file
  */
 public class Format {
+
+    private final File baseFile;
 
     /**
      * A Preset for the field with preconfigured parameters like background color, image url or description
@@ -75,7 +74,7 @@ public class Format {
     }
 
 
-    public StringProperty baseProperty = new SimpleStringProperty(); // the first html template in which elements will be inserted
+    public final StringProperty baseProperty = new SimpleStringProperty(); // the first html template in which elements will be inserted
     public String defaultNewsTemplate; // the template of a default div
     public String img; // html for how to display an img div by default
     public List<Preset> presets; // list of all preconfigured presets
@@ -85,91 +84,42 @@ public class Format {
     /**
      * Constructor of a <code>Format</code> object
      *
-     * @param base the first html template in which elements will be inserted
+     * @param baseFile the first html template in which elements will be inserted
      * @param defaultNewsTemplate the template of a default div
      * @param img html for how to display an img div by default
      * @param presets list of all preconfigured presets
      * @param languages set of all languages in which the document will be redacted
      */
-    public Format(String base, String defaultNewsTemplate, String img, List<Preset> presets, List<String> languages) {
-        this.baseProperty.set(base);
+    public Format(File baseFile, String defaultNewsTemplate, String img, List<Preset> presets, List<String> languages) throws IOException {
+        this.baseFile = baseFile;
+        this.baseProperty.set(FileManager.readContentOfFile(baseFile));
         this.defaultNewsTemplate = defaultNewsTemplate;
         this.img = img;
         this.presets = presets;
         this.languages = FXCollections.observableList(languages);
     }
 
-    /**
-     * Open the file from <code>path</code> read the content and return it as a <code>String</code>
-     *
-     * @param path the path of the file
-     * @return the content of the file as a <code>String</code>
-     * @throws IOException return <code>IOException</code> in case of an input-output exception (the file doesn't exist)
-     */
-    static private String readContentOfFile(String path) throws IOException {
-        InputStream file = Format.class.getResourceAsStream(path);
-        assert file != null;
-        return readContentOfFile(file);
-    }
-
-    /**
-     * Open the file from <code>inputStream</code> read the content and return it as a <code>String</code>
-     *
-     * @param inputStream the stream of the file
-     * @return the content of the file as a <code>String</code>
-     * @throws IOException throws <code>IOException</code> in case of an input-output exception (the file doesn't exist)
-     */
-    static private String readContentOfFile(InputStream inputStream) throws IOException {
-        final ByteArrayOutputStream result = new ByteArrayOutputStream();
-        final byte[] buffer = new byte[1024];
-        int length;
-
-        while ((length = inputStream.read(buffer)) != -1) {
-            result.write(buffer, 0, length);
-        }
-
-        return result.toString();
-    }
-
-    /**
-     * Read the content of a file and return it as a <code>String</code>
-     *
-     * @param file the file to read
-     * @return the content of the file as a <code>String</code>
-     */
-    static private String readContentOfFile(File file) {
-        try (FileReader fileReader = new FileReader(file)) {
-            StringBuilder stringBuilder = new StringBuilder();
-            int c;
-            while ((c = fileReader.read()) != -1)
-                stringBuilder.append((char) c);
-            return stringBuilder.toString();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     /**
      * Construct a <code>Format</code> object from a json file (config.json by default)
      *
-     * @param inputStream the inputStream in which the json has to be read
+     * @param path the path of the file in which the json has to be read
      * @return a <code>Format</code> object
      * @throws IOException throws <code>IOException</code> in case of an input-output exception (the file doesn't exist)
      */
-    static public Format fromJSON(InputStream inputStream) throws IOException {
+    static public Format fromJSON(String path) throws IOException, URISyntaxException {
 
-        String json = readContentOfFile(inputStream);
+        String json = FileManager.readContentOfFile(path);
 
         ObjectMapper om = new ObjectMapper();
         JsonNode node = om.readTree(json);
 
-
-        String base;
         String defaultNewsTemplate;
-        String img;
-        base = readContentOfFile(node.get("baseFilePath").asText());
-        defaultNewsTemplate = readContentOfFile(node.get("defaultNewsTemplateFilePath").asText());
-        img = readContentOfFile(node.get("imgFilePath").asText());
+
+        File baseFile = FileManager.openFile(node.get("baseFilePath").asText());
+
+        defaultNewsTemplate = FileManager.readContentOfFile(node.get("defaultNewsTemplateFilePath").asText());
+        String img = FileManager.readContentOfFile(node.get("imgFilePath").asText());
 
         List<Preset> presets = extractPresets(node);
 
@@ -178,7 +128,7 @@ public class Format {
             languages.add(jsonNode.asText());
         }
 
-        return new Format(base, defaultNewsTemplate, img, presets, languages);
+        return new Format(baseFile, defaultNewsTemplate, img, presets, languages);
     }
 
     /**
@@ -198,7 +148,7 @@ public class Format {
             String sectionTag = nodePreset.get("sectionTag").asText();
             String templateFile = nodePreset.get("templateFile").asText();
 
-            String template = readContentOfFile(templateFile);
+            String template = FileManager.readContentOfFile(templateFile);
 
             HashMap<Tags, String> parameters = new HashMap<>();
             JsonNode nodeParams = nodePreset.get("parameters");
@@ -221,5 +171,9 @@ public class Format {
 
     public String getBase() {
         return baseProperty.get();
+    }
+
+    public void saveFormat() {
+        FileManager.saveInFile(baseProperty.get(), baseFile);
     }
 }

@@ -21,18 +21,12 @@ import javafx.stage.FileChooser;
 import javafx.scene.web.WebView;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-import java.net.URL;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
 
 
 public class MainController {
@@ -58,11 +52,11 @@ public class MainController {
     public TextArea formatEditor;
     @FXML
     private VBox fields;
+    private String previousSavedHTML;
 
-    public MainController() throws IOException {
-        InputStream configStream = Format.class.getResourceAsStream(CONFIG_FILE_PATH);
+    public MainController() throws IOException, URISyntaxException {
 
-        formatProperty.setValue(Format.fromJSON(configStream));
+        formatProperty.setValue(Format.fromJSON(CONFIG_FILE_PATH));
 
         defaultPreset = formatProperty.get().presets.get(0);
 
@@ -72,9 +66,14 @@ public class MainController {
                 fieldSectionMap.putIfAbsent(preset.sectionTag(), new ArrayList<>());
             }
         }
+
+        previousSavedHTML = buildHTML();
     }
 
 
+    /**
+     * Called right after window creation
+     */
     @FXML
     public void initialize() {
         formatEditor.textProperty().bindBidirectional(formatProperty.get().getBaseProperty());
@@ -114,15 +113,21 @@ public class MainController {
     protected void exportFile() {
         FileChooser fileChooser = createFileChooser("Export file", HTML_FILTER);
         File file = fileChooser.showSaveDialog(fields.getScene().getWindow());
-        saveInFile(buildHTML(), file);
+        if (file == null) return;
+        FileManager.saveInFile(buildHTML(), file);
     }
 
+    /**
+     * Open a base file for the HTML to be formatted
+     */
     @FXML
-    protected void openFormat() throws IOException {
+    protected void openFormat() {
         FileChooser fileChooser = createFileChooser("Open file",  NMKR_FILTER);
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
-        InputStream inputStream = new FileInputStream(file);
-        formatProperty.setValue(Format.fromJSON(inputStream));
+        if (file == null) return;
+        try {
+            formatProperty.setValue(Format.fromJSON(file.getPath()));
+        } catch (Exception ignored) {} // the file exist because it is chosen by the user via dialog
     }
 
     /**
@@ -130,11 +135,14 @@ public class MainController {
      */
     @FXML
     public void save() {
+        if (hasNotChanged()) return;
+
         if (recentFileProperty.isNotNull().get()) {
             saveInFile(recentFileProperty.get());
         } else {
             saveAs();
         }
+        formatProperty.get().saveFormat();
     }
 
     /**
@@ -144,8 +152,17 @@ public class MainController {
     public void saveAs() {
         FileChooser fileChooser = createFileChooser("Save as", NMKR_FILTER);
         File file = fileChooser.showSaveDialog(fields.getScene().getWindow());
+        if (file == null) return;
         recentFileProperty.setValue(file);
         saveInFile(file);
+    }
+
+    /**
+     * Return true if the content of the HTML changed, else false
+     * @return true if the content of the HTML changed, else false
+     */
+    public boolean hasNotChanged() {
+        return buildHTML().equals(this.previousSavedHTML);
     }
 
     /**
@@ -186,7 +203,8 @@ public class MainController {
             rootNode.set(sectionTag, sectionNode);
         }
 
-        saveInFile(rootNode.toPrettyString(), file);
+        FileManager.saveInFile(rootNode.toPrettyString(), file);
+        previousSavedHTML = buildHTML();
     }
 
     /**
@@ -198,6 +216,9 @@ public class MainController {
     public void openFile() throws IOException {
         FileChooser fileChooser = createFileChooser("Open file", NMKR_FILTER);
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
+
+        if (file == null) return;
+
         recentFileProperty.setValue(file);
 
         fieldSectionMap.forEach((section, list) -> list.clear());      //clear sections
@@ -240,21 +261,8 @@ public class MainController {
                 }
             }
         }
-    }
 
-    /**
-     * Save string content in file on disk
-     *
-     * @param content the content to write
-     * @param file the file where to write
-     */
-    private void saveInFile(String content, File file) {
-        if (Objects.isNull(file)) return;
-        try (Writer wr = new FileWriter(file)) {
-            wr.write(content);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        previousSavedHTML = buildHTML();
     }
 
     @FXML
@@ -421,5 +429,4 @@ public class MainController {
         hb.getStyleClass().add("HBox");
         return hb;
     }
-
 }
