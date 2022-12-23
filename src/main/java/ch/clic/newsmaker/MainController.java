@@ -125,6 +125,7 @@ public class MainController {
         FileChooser fileChooser = createFileChooser("Open file",  NMKR_FILTER);
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
         if (file == null) return;
+
         try {
             formatProperty.setValue(Format.fromJSON(file.getPath()));
         } catch (Exception ignored) {} // the file exist because it is chosen by the user via dialog
@@ -134,7 +135,7 @@ public class MainController {
      *  Quick way to save if already saved before
      */
     @FXML
-    public void save() {
+    public void save() throws IOException {
         if (hasNotChanged()) return;
 
         if (recentFileProperty.isNotNull().get()) {
@@ -146,7 +147,7 @@ public class MainController {
     }
 
     /**
-     * The user can choose a file by a dialog and save the current edition of the docuement
+     * The user can choose a file by a dialog and save the current edition of the document
      */
     @FXML
     public void saveAs() {

@@ -18,9 +18,9 @@ Given a HTML base template (/assets/base.html), the software will replace all oc
 
 ## Presets:
 
-You can use presets to specify default values of you reccurent news fields as the name of the event, the image URL or the date. By changing the preset selection of a news field from `default` to another preset, the specified information will overide the default's ones.
+You can use presets to specify default values of you recurrent news fields as the name of the event, the image URL or the date. By changing the preset selection of a news field from `default` to another preset, the specified information will override the default's ones.
 
-Presets can be added by modifing the config.json file.
+Presets can be added by modifying the config.json file.
 In order to add a preset to the list of presets you just need to add to the json array `presets` the following element, by replacing all your parameters information, text, and URL.
 
     {
@@ -42,14 +42,14 @@ In order to add a preset to the list of presets you just need to add to the json
 
 The template file is an HTML file with the default HTML code for a news div. Part to be replaced in the HTML have to be indicated by a tag @TAG_NAME and the tag will be replaced by the corresponding text content of the tag.  
 
-In parameters section, can add all tags availlable in this list:
+In parameters section, can add all tags available in this list:
 
 NEWS_DETAILS_URL, BACKGROUND_COLOR, TEXT_COLOR, NEWS_IMAGE_URL, NEWS_DESCRIPTION, NEWS_DETAIL_LABEL, NEWS_TITLE, NEWS_DATE
 
-And you can also add your personnal tags like SUBTITLE for exemple. In the HTML template you can identify the tags to be replaced by @YOUR_TAG_NAME (@SUBTITLE for exemple). 
+And you can also add your personal tags like SUBTITLE for exemple. In the HTML template you can identify the tags to be replaced by @YOUR_TAG_NAME (@SUBTITLE for exemple). 
 
 Don't remove the first preset `default` but you can modify its parameters and its template file.
-The parameters of the `default` preset are used to create a new news field, but will not overide the field by changing the news field preset selection to `default`.
+The parameters of the `default` preset are used to create a new news field, but will not override the field by changing the news field preset selection to `default`.
 
 ## Languages:
 

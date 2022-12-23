@@ -6,7 +6,7 @@
 
     <groupId>ch.clic</groupId>
     <artifactId>NewsMaker</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <name>NewsMaker</name>
 
     <properties>

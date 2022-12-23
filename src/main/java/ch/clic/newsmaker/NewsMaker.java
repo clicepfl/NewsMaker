@@ -31,7 +31,7 @@ public class NewsMaker extends Application {
     }
 
     @Override
-    public void stop() {
+    public void stop() throws IOException {
 
         if (controller.hasNotChanged()) return;
 

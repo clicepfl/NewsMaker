@@ -1,8 +1,7 @@
 {
   "languages": ["FRANCAIS", "ENGLISH"],
-  "baseFilePath": "/assets/base.html",
-  "defaultNewsTemplateFilePath": "/assets/default_news_template.html",
-  "imgFilePath": "/assets/image.html",
+
+  "defaultFolderPath": "/assets",
 
   "presets": [
     {
