@@ -44,11 +44,12 @@
             <Tab text="edit fields" closable="false">
                 <ScrollPane styleClass="fields-scroll-pane" fitToWidth="true">
                     <AnchorPane GridPane.columnIndex="0">
-                        <VBox fx:id="fields"
-                              AnchorPane.bottomAnchor="0"
+                        <VBox AnchorPane.bottomAnchor="0"
                               AnchorPane.leftAnchor="0"
                               AnchorPane.rightAnchor="0"
-                              AnchorPane.topAnchor="0">
+                              AnchorPane.topAnchor="0"
+                              alignment="CENTER">
+                            <VBox fx:id="fields"/>
                             <Button text="Add Field" onAction="#addFieldButtonClick"/>
                         </VBox>
                     </AnchorPane>

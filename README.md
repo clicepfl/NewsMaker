@@ -9,12 +9,12 @@ The command for compiling the project is:<br>
 and for creating the .jar (in the target directory):<br>
 `mvn package`
 
-ensure that the .jar named with *-shaded* at the end is executable and then it is ready to be used !
+ensure that the .jar named with *-shaded* at the end is executable, and then it is ready to be used !
 
 
 ## How it works:
 
-Given a HTML base template (/assets/base.html), the software will replace all occurence of @SECTION#LANGUAGE by all HTML formatted nodes of the given section SECTION in the LANGUAGE language.
+Given an HTML base template (/assets/base.html), the software will replace all occurrence of @SECTION#LANGUAGE by all HTML formatted nodes of the given section "SECTION" "in the language "LANGUAGE".
 
 ## Presets:
 

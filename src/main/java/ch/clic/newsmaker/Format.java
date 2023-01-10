@@ -9,7 +9,6 @@ import javafx.collections.ObservableList;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -125,7 +124,7 @@ public class Format {
      * @return a <code>Format</code> object
      * @throws IOException throws <code>IOException</code> in case of an input-output exception (the file doesn't exist)
      */
-    static public Format fromJSON(String path) throws IOException, URISyntaxException {
+    static public Format fromJSON(String path) throws IOException {
 
         String json = FileManager.readContentOfResource(path);
 
@@ -151,10 +150,11 @@ public class Format {
      * @return the list of presets extracted
      * @throws IOException throws <code>IOException</code> in case of an input-output exception
      */
-    static private List<Preset> extractPresets(JsonNode node) throws IOException, URISyntaxException {
+    static private List<Preset> extractPresets(JsonNode node) throws IOException {
         List<Preset> presets = new ArrayList<>();
         JsonNode jsonNode = node.get("presets");
 
+        // iter on all preset node
         for (JsonNode nodePreset : jsonNode) {
 
             String name = nodePreset.get("name").asText();
@@ -186,6 +186,11 @@ public class Format {
         return baseProperty.get();
     }
 
+    /**
+     * Save the format in a "last used folder".
+     *
+     * @throws IOException if an I/O error occurs
+     */
     public void saveFormat() throws IOException {
         Files.createDirectories(LAST_USED_FOLDER_PATH);
         FileManager.saveInFile(baseProperty.get(),  baseFile);
