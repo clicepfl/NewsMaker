@@ -75,6 +75,17 @@
         "TEXT_COLOR": "black",
         "NEWS_TITLE": "Polyg0ts"
       }
+    },
+    {
+      "sectionTag": "COMMISSIONS",
+      "name": "EPFL developers club",
+      "templateFile": "/assets/commissions.html",
+      "parameters": {
+        "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/JHwRAYWYtpJK2XS/download/EPFL%20dev%20club%20logo.jpg",
+        "BACKGROUND_COLOR": "rgb(84,112,204)",
+        "TEXT_COLOR": "white",
+        "NEWS_TITLE": "EPFL developers club"
+      }
     }
   ]
 }
