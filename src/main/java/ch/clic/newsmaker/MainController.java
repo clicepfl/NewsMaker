@@ -4,9 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
@@ -21,18 +19,10 @@ import javafx.stage.FileChooser;
 import javafx.scene.web.WebView;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Objects;
-import java.util.ResourceBundle;
 
 
 public class MainController {
@@ -47,8 +37,6 @@ public class MainController {
     private static final FileChooser.ExtensionFilter NMKR_FILTER = new FileChooser.ExtensionFilter("NewsMaker files (.nmkr)", "*.nmkr");
     private final HashMap<String, List<NewsFieldBean>> fieldSectionMap = new HashMap<>(); //fields are sorted by sections
     private static Format.Preset defaultPreset;
-    private final IntegerProperty numberOfFields = new SimpleIntegerProperty(0);
-
     private final ObjectProperty<Format> formatProperty = new SimpleObjectProperty<>();
 
     private final ObjectProperty<File> recentFileProperty = new SimpleObjectProperty<>();
@@ -58,11 +46,11 @@ public class MainController {
     public TextArea formatEditor;
     @FXML
     private VBox fields;
+    private String previousSavedHTML;
 
     public MainController() throws IOException {
-        InputStream configStream = Format.class.getResourceAsStream(CONFIG_FILE_PATH);
 
-        formatProperty.setValue(Format.fromJSON(configStream));
+        formatProperty.setValue(Format.fromJSON(CONFIG_FILE_PATH));
 
         defaultPreset = formatProperty.get().presets.get(0);
 
@@ -72,9 +60,14 @@ public class MainController {
                 fieldSectionMap.putIfAbsent(preset.sectionTag(), new ArrayList<>());
             }
         }
+
+        previousSavedHTML = buildHTML();
     }
 
 
+    /**
+     * Called right after window creation
+     */
     @FXML
     public void initialize() {
         formatEditor.textProperty().bindBidirectional(formatProperty.get().getBaseProperty());
@@ -102,8 +95,7 @@ public class MainController {
         fieldSectionMap.get(section).add(fieldBean);
         fieldBean.setSection(section);
         fieldBean.formatProperty.bind(formatProperty);
-        fields.getChildren().add(fields.getChildren().size()-1, createField(fieldBean));
-        numberOfFields.setValue(numberOfFields.intValue()+1);
+        fields.getChildren().add(createField(fieldBean));
         return fieldBean;
     }
 
@@ -114,38 +106,57 @@ public class MainController {
     protected void exportFile() {
         FileChooser fileChooser = createFileChooser("Export file", HTML_FILTER);
         File file = fileChooser.showSaveDialog(fields.getScene().getWindow());
-        saveInFile(buildHTML(), file);
+        if (file == null) return;
+        FileManager.saveInFile(buildHTML(), file);
     }
 
+    /**
+     * Open a base file for the HTML to be formatted
+     */
     @FXML
-    protected void openFormat() throws IOException {
+    protected void openFormat() {
         FileChooser fileChooser = createFileChooser("Open file",  NMKR_FILTER);
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
-        InputStream inputStream = new FileInputStream(file);
-        formatProperty.setValue(Format.fromJSON(inputStream));
+        if (file == null) return;
+
+        try {
+            formatProperty.setValue(Format.fromJSON(file.getPath()));
+        } catch (Exception ignored) {} // the file exist because it is chosen by the user via dialog
     }
 
     /**
      *  Quick way to save if already saved before
      */
     @FXML
-    public void save() {
+    public void save() throws IOException {
+        if (hasNotChanged()) return;
+
         if (recentFileProperty.isNotNull().get()) {
             saveInFile(recentFileProperty.get());
         } else {
             saveAs();
         }
+        formatProperty.get().saveFormat();
     }
 
     /**
-     * The user can choose a file by a dialog and save the current edition of the docuement
+     * The user can choose a file by a dialog and save the current edition of the document
      */
     @FXML
     public void saveAs() {
         FileChooser fileChooser = createFileChooser("Save as", NMKR_FILTER);
         File file = fileChooser.showSaveDialog(fields.getScene().getWindow());
+        if (file == null) return;
         recentFileProperty.setValue(file);
         saveInFile(file);
+    }
+
+    /**
+     * Return true if the content of the HTML changed, else false
+     * @return true if the content of the HTML changed, else false
+     */
+    public boolean hasNotChanged() {
+        return buildHTML().equals(this.previousSavedHTML);
     }
 
     /**
@@ -157,9 +168,11 @@ public class MainController {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectNode rootNode = objectMapper.createObjectNode();
 
+        // save each section
         for (String sectionTag : fieldSectionMap.keySet()) {
             ArrayNode sectionNode = objectMapper.createArrayNode();
 
+            // each field of the section
             for (NewsFieldBean newsFieldBean : fieldSectionMap.get(sectionTag)) {
                 ObjectNode newsFieldBeanNode = objectMapper.createObjectNode();
                 newsFieldBeanNode.put(SECTION_TAG, newsFieldBean.getSection());
@@ -186,11 +199,12 @@ public class MainController {
             rootNode.set(sectionTag, sectionNode);
         }
 
-        saveInFile(rootNode.toPrettyString(), file);
+        FileManager.saveInFile(rootNode.toPrettyString(), file);
+        previousSavedHTML = buildHTML();
     }
 
     /**
-     * Open a file
+     * Open a .nmkr file
      *
      * @throws IOException if the file is corrupted
      */
@@ -198,63 +212,49 @@ public class MainController {
     public void openFile() throws IOException {
         FileChooser fileChooser = createFileChooser("Open file", NMKR_FILTER);
         File file = fileChooser.showOpenDialog(fields.getScene().getWindow());
+
+        if (file == null) return;
+
         recentFileProperty.setValue(file);
 
         fieldSectionMap.forEach((section, list) -> list.clear());      //clear sections
-        fields.getChildren().remove(0, fields.getChildren().size()-1); //clear javaFX nodes linked to beans
-        numberOfFields.setValue(0);                                    //reset beans counter
+        fields.getChildren().clear();                                  //clear javaFX nodes linked to beans
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
 
-        Iterator<String> sectionIt = rootNode.fieldNames();
-        while (sectionIt.hasNext()) {
-            String sectionTag = sectionIt.next();
+        rootNode.fieldNames().forEachRemaining(sectionTag -> {
             for (JsonNode newsNode : rootNode.get(sectionTag)) {
                 NewsFieldBean newsFieldBean = createNewsFieldBean(sectionTag);
 
                 newsFieldBean.setSection(newsNode.get(SECTION_TAG).asText());
                 newsFieldBean.setTemplate(newsNode.get(TEMPLATE_TAG).asText());
 
-
+                // create JSON nodes for language constant properties (like URL, image, ...)
                 JsonNode languageConstantNode = newsNode.get(LANGUAGE_CONSTANT_PROPERTIES_TAG);
-                Iterator<String> lcIt = languageConstantNode.fieldNames();
-                while (lcIt.hasNext()) {
-                    String param = lcIt.next();
-                    newsFieldBean.setPropertyValue(Format.Tags.valueOf(param), languageConstantNode.get(param).asText());
-                }
-
-                JsonNode languageVariableNode = newsNode.get(LANGUAGE_VARIABLE_PROPERTIES_TAG);
-                Iterator<String> languageIt = languageVariableNode.fieldNames();
-                while (languageIt.hasNext()) {
-                    String language = languageIt.next();
-                    Iterator<String> paramIt = languageVariableNode.get(language).fieldNames();
-                    while (paramIt.hasNext()) {
-                        String param = paramIt.next();
-                        newsFieldBean.setPropertyValue(
-                                language,
-                                Format.Tags.valueOf(param),
-                                languageVariableNode.get(language).get(param).asText()
+                languageConstantNode.fieldNames()
+                        .forEachRemaining(param ->
+                                newsFieldBean.setPropertyValue(Format.Tags.valueOf(param), languageConstantNode.get(param).asText())
                         );
-                    }
-                }
-            }
-        }
-    }
 
-    /**
-     * Save string content in file on disk
-     *
-     * @param content the content to write
-     * @param file the file where to write
-     */
-    private void saveInFile(String content, File file) {
-        if (Objects.isNull(file)) return;
-        try (Writer wr = new FileWriter(file)) {
-            wr.write(content);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                // create JSON for language variable properties (like description, titles, date, ...)
+                JsonNode languageVariableNode = newsNode.get(LANGUAGE_VARIABLE_PROPERTIES_TAG);
+
+                languageVariableNode.fieldNames()
+                        .forEachRemaining(language ->
+                                languageVariableNode.get(language).fieldNames()
+                                        .forEachRemaining(param ->
+                                                newsFieldBean.setPropertyValue(
+                                                        language,
+                                                        Format.Tags.valueOf(param),
+                                                        languageVariableNode.get(language).get(param).asText()
+                                                )
+                                        )
+                        );
+            }
+        });
+
+        previousSavedHTML = buildHTML();
     }
 
     @FXML
@@ -421,5 +421,4 @@ public class MainController {
         hb.getStyleClass().add("HBox");
         return hb;
     }
-
 }
