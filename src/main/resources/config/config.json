@@ -1,8 +1,6 @@
 {
   "languages": ["FRANCAIS", "ENGLISH"],
 
-  "defaultFolderPath": "/assets",
-
   "presets": [
     {
       "sectionTag": "NEWS",

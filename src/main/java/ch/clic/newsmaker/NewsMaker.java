@@ -42,8 +42,6 @@ public class NewsMaker extends Application {
         alert.setTitle("File not saved");
         alert.showAndWait();
 
-        System.out.println(alert.getResult());
-
         if (alert.getResult() != ButtonType.YES) return;
         controller.save();
     }

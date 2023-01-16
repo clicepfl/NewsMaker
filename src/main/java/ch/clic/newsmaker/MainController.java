@@ -26,8 +26,6 @@ import java.util.Map;
 
 
 public class MainController {
-
-    private static final String CONFIG_FILE_PATH = "/config/config.json";
     private static final String DEFAULT_SECTION = "NEWS";
     private static final String SECTION_TAG = "section";
     private static final String TEMPLATE_TAG = "template";
@@ -50,7 +48,7 @@ public class MainController {
 
     public MainController() throws IOException {
 
-        formatProperty.setValue(Format.fromJSON(CONFIG_FILE_PATH));
+        formatProperty.setValue(Format.recentFormat());
 
         defaultPreset = formatProperty.get().presets.get(0);
 
@@ -120,7 +118,7 @@ public class MainController {
         if (file == null) return;
 
         try {
-            formatProperty.setValue(Format.fromJSON(file.getPath()));
+            formatProperty.setValue(Format.fromJSON(file));
         } catch (Exception ignored) {} // the file exist because it is chosen by the user via dialog
     }
 
