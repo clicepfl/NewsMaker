@@ -14,7 +14,7 @@
 
 .label {
     -fx-text-fill: inherit;
-    -fx-pref-width: 100px;
+    -fx-pref-width: 150px;
     -fx-spacing: inherit;
     -fx-pref-height: 2em;
     -fx-alignment: center-right;

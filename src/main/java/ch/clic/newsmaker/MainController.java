@@ -10,7 +10,6 @@ import javafx.beans.property.StringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
@@ -23,6 +22,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MainController {
@@ -90,7 +90,7 @@ public class MainController {
      * @return a new <code>NewsFieldBean</code>
      */
     private NewsFieldBean createNewsFieldBean(String section) {
-        NewsFieldBean fieldBean = new NewsFieldBean();
+        NewsFieldBean fieldBean = new NewsFieldBean(defaultPreset, formatProperty.get());
         fieldSectionMap.putIfAbsent(section, new ArrayList<>());
         fieldSectionMap.get(section).add(fieldBean);
         fieldBean.setSection(section);
@@ -178,18 +178,21 @@ public class MainController {
                 newsFieldBeanNode.put(SECTION_TAG, newsFieldBean.getSection());
                 newsFieldBeanNode.put(TEMPLATE_TAG, newsFieldBean.getTemplate());
 
+                // save language-constant properties
                 ObjectNode languageConstantPropertiesNode = objectMapper.createObjectNode();
                 newsFieldBean.getLanguageConstantPropertiesMap()
-                             .forEach((tag, value) -> languageConstantPropertiesNode.put(tag.name(), value.get()));
+                        .forEach((tag, value) -> languageConstantPropertiesNode.put(tag.name(), value.get()));
 
                 newsFieldBeanNode.set(LANGUAGE_CONSTANT_PROPERTIES_TAG, languageConstantPropertiesNode);
 
+                // save language-variable properties
                 ObjectNode languageVariablePropertiesNode = objectMapper.createObjectNode();
 
                 for (String language : formatProperty.get().languages) {
                     ObjectNode languageNode = objectMapper.createObjectNode();
-                    newsFieldBean.getLanguageVariablePropertiesMap().get(language)
-                                 .forEach((tag, value) -> languageNode.put(tag.name(), value.get()));
+                    newsFieldBean.getLanguageVariablePropertiesMap()
+                            .get(language)
+                            .forEach((tag, value) -> languageNode.put(tag.name(), value.get()));
                     languageVariablePropertiesNode.set(language, languageNode);
                 }
 
@@ -232,25 +235,24 @@ public class MainController {
 
                 // create JSON nodes for language constant properties (like URL, image, ...)
                 JsonNode languageConstantNode = newsNode.get(LANGUAGE_CONSTANT_PROPERTIES_TAG);
+
                 languageConstantNode.fieldNames()
-                        .forEachRemaining(param ->
-                                newsFieldBean.setPropertyValue(Format.Tags.valueOf(param), languageConstantNode.get(param).asText())
-                        );
+                        .forEachRemaining(param -> {
+                            Format.Tag tag = new Format.Tag(param, false);
+                            newsFieldBean.setPropertyValue(tag, languageConstantNode.get(param).asText());
+                        });
 
                 // create JSON for language variable properties (like description, titles, date, ...)
                 JsonNode languageVariableNode = newsNode.get(LANGUAGE_VARIABLE_PROPERTIES_TAG);
 
-                languageVariableNode.fieldNames()
-                        .forEachRemaining(language ->
-                                languageVariableNode.get(language).fieldNames()
-                                        .forEachRemaining(param ->
-                                                newsFieldBean.setPropertyValue(
-                                                        language,
-                                                        Format.Tags.valueOf(param),
-                                                        languageVariableNode.get(language).get(param).asText()
-                                                )
-                                        )
-                        );
+                languageVariableNode.fieldNames().forEachRemaining(
+                        language -> languageVariableNode.get(language).fieldNames().forEachRemaining(
+                                param -> {
+                                    Format.Tag tag = new Format.Tag(param, true);
+                                    newsFieldBean.setPropertyValue(tag, language, languageVariableNode.get(language).get(param).asText());
+                                }
+                        )
+                );
             }
         });
 
@@ -319,16 +321,19 @@ public class MainController {
 
         TabPane tabPane = new TabPane();
 
-        for (String language : fieldBean.formatProperty.get().languages) {
-            TextArea ta = new TextArea();
-            ta.textProperty().bindBidirectional(fieldBean.getProperty(language, Format.Tags.NEWS_DESCRIPTION));
+        for (String language : this.formatProperty.get().languages) {
 
-            Tab tab = new Tab(language.toLowerCase(), new VBox(
-                    createFieldWithLabel("Titre: ", fieldBean.getProperty(language, Format.Tags.NEWS_TITLE)),
-                    ta,
-                    createFieldWithLabel("Date: ", fieldBean.getProperty(language, Format.Tags.NEWS_DATE)),
-                    createFieldWithLabel("Détails texte: ", fieldBean.getProperty(language, Format.Tags.NEWS_DETAIL_LABEL))));
+            VBox vBox = new VBox();
 
+            for (Map.Entry<Format.Tag, StringProperty> entry : fieldBean.getLanguageVariablePropertiesMap().get(language).entrySet()) {
+                if (entry.getKey().isBigText()) {
+                    vBox.getChildren().add(createTextWithContent(entry.getKey().presentationName(), entry.getValue()));
+                } else {
+                    vBox.getChildren().add(createFieldWithLabel(entry.getKey().presentationName(), entry.getValue()));
+                }
+            }
+
+            Tab tab = new Tab(language.toLowerCase(), vBox);
             tabPane.getTabs().add(tab);
         }
 
@@ -364,13 +369,15 @@ public class MainController {
 
         VBox vb = new VBox(
                 new HBox(new Label("Section: "), sectionChoiceBox,
-                         new Label("Preset: "), presetChoiceBox,
-                         new HBox(upButton, downButton)),
-                tabPane,
-                createFieldWithLabel("Image URL: ", fieldBean.getProperty(Format.Tags.NEWS_IMAGE_URL)),
-                createFieldWithLabel("Détails URL: ", fieldBean.getProperty(Format.Tags.NEWS_DETAILS_URL)),
-                new Separator(Orientation.HORIZONTAL));
-                vb.getStyleClass().add("field");
+                        new Label("Preset: "), presetChoiceBox,
+                        new HBox(upButton, downButton)),
+                tabPane);
+
+        for (Map.Entry<Format.Tag, StringProperty> entry : fieldBean.getLanguageConstantPropertiesMap().entrySet()) {
+            vb.getChildren().add(createFieldWithLabel(entry.getKey().presentationName(), entry.getValue()));
+        }
+
+        vb.getStyleClass().add("field");
         VBox.setMargin(vb, new Insets(10,10,10,10));
 
         Button rb = new Button("delete");
@@ -381,6 +388,7 @@ public class MainController {
         rb.getStyleClass().add("delete-button");
 
         vb.getChildren().add(0, rb);
+
         return vb;
     }
 
@@ -420,5 +428,12 @@ public class MainController {
         HBox hb =  new HBox(new Label(text), tf);
         hb.getStyleClass().add("HBox");
         return hb;
+    }
+
+    private TextArea createTextWithContent(String text, StringProperty toBind) {
+        TextArea ta = new TextArea();
+        ta.textProperty().bindBidirectional(toBind);
+        ta.textProperty().set(text);
+        return ta;
     }
 }

@@ -6,107 +6,45 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class NewsFieldBean {
 
     private final StringProperty section = new SimpleStringProperty(); //the section where the field is
 
-    private final Map<String, Map<Format.Tags, StringProperty>> languageVariantPropertiesMap; // all language dependant properties (like description or title) are sorted by language here
+    private final Map<String, Map<Format.Tag, StringProperty>> languageVariantPropertiesMap; // all language dependant properties (like description or title) are sorted by language here
 
-    private final Map<Format.Tags, StringProperty> languageInvariantPropertiesMap; // the others properties are stored here
+    private final Map<Format.Tag, StringProperty> languageInvariantPropertiesMap; // the others properties are stored here
 
     private String template = "";
 
     public final ObjectProperty<Format> formatProperty = new SimpleObjectProperty<>();
 
-    public NewsFieldBean() {
+    public NewsFieldBean(Format.Preset preset, Format format) {
+
+        formatProperty.setValue(format);
+
         languageVariantPropertiesMap = new HashMap<>();
+        languageInvariantPropertiesMap = new LinkedHashMap<>();
 
-        languageInvariantPropertiesMap = new HashMap<>();
-        for (Format.Tags tag : Format.Tags.values()) {
-            if (!tag.isLanguageVariant) {
-                languageInvariantPropertiesMap.put(tag, new SimpleStringProperty());
-            }
-        }
-
-        this.formatProperty.addListener((o)-> setLanguagesPropertiesMap());
+        updateWithPreset(preset);
     }
 
-
-    private void setLanguagesPropertiesMap() {
-        for (String language : formatProperty.get().languages) {
-            if (languageVariantPropertiesMap.containsKey(language))
-                continue;
-            HashMap<Format.Tags, StringProperty> map = new HashMap<>();
-            for (Format.Tags tag : Format.Tags.values()) {
-                if (tag.isLanguageVariant)
-                    map.put(tag, new SimpleStringProperty());
-            }
-
-            languageVariantPropertiesMap.put(language, map);
-        }
-    }
-
-    public String getPropertyValue(Format.Tags tag) {
-        if (!tag.isLanguageVariant) {
-            return languageInvariantPropertiesMap.get(tag).get();
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    public String getPropertyValue(String language, Format.Tags tag) {
-        if (!tag.isLanguageVariant)
-            return languageInvariantPropertiesMap.get(tag).get();
-        return languageVariantPropertiesMap.get(language).get(tag).get();
-    }
-
-    public StringProperty getProperty(Format.Tags tag) {
-        if (!tag.isLanguageVariant) {
-            return languageInvariantPropertiesMap.get(tag);
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    public StringProperty getProperty(String language, Format.Tags tag) {
-        if (!tag.isLanguageVariant)
-            return languageInvariantPropertiesMap.get(tag);
-        return languageVariantPropertiesMap.get(language).get(tag);
-    }
-
-    public void setPropertyValue(Format.Tags tag, String value) {
-        if (tag.isLanguageVariant) {
-            for (String language : formatProperty.get().languages) {
-                languageVariantPropertiesMap.get(language).get(tag).setValue(value);
-            }
-        } else {
-            languageInvariantPropertiesMap.get(tag).setValue(value);
-        }
-    }
-
-    public void setPropertyValue(String language, Format.Tags tag, String value) {
-        if (tag.isLanguageVariant) {
-            languageVariantPropertiesMap.putIfAbsent(language, new HashMap<>());
-            languageVariantPropertiesMap.get(language).putIfAbsent(tag, new SimpleStringProperty());
-            languageVariantPropertiesMap.get(language).get(tag).setValue(value);
-        } else {
-            languageInvariantPropertiesMap.get(tag).setValue(value);
-        }
-    }
-    public Map<Format.Tags, StringProperty> getLanguageConstantPropertiesMap() {
+    public Map<Format.Tag, StringProperty> getLanguageConstantPropertiesMap() {
         return languageInvariantPropertiesMap;
     }
-    public Map<String, Map<Format.Tags, StringProperty>> getLanguageVariablePropertiesMap() {
+    public Map<String, Map<Format.Tag, StringProperty>> getLanguageVariablePropertiesMap() {
         return languageVariantPropertiesMap;
     }
 
+    /**
+     * Given a preset, replace all corresponding values with the values of the preset, it's template and section tag
+     * @param preset The preset which will serves as model
+     */
     public void updateWithPreset(Format.Preset preset) {
-        for (Format.Tags param : preset.parameters().keySet()) {
-            String value = preset.parameters().get(param);
-            setPropertyValue(param, value);
-        }
+        preset.parameters().forEach(this::setPropertyValue);
         setSection(preset.sectionTag());
         setTemplate(preset.template());
     }
@@ -132,6 +70,59 @@ public class NewsFieldBean {
     }
 
     /**
+     * Set value of a language-constant property
+     * @param tag the tag which identify the property
+     * @param value the new value of the property
+     */
+    public void  setPropertyValue(Format.Tag tag, String value) {
+        if (tag.isLanguageVariant())
+            throw new IllegalArgumentException("the tagged property needs values for each language");
+
+        languageInvariantPropertiesMap.putIfAbsent(tag, new SimpleStringProperty());
+        languageInvariantPropertiesMap.get(tag).set(value);
+    }
+
+    /**
+     * Set value of a language-variant property in a given language
+     * @param tag the tag which identify the property
+     * @param language the language in which the property will be set
+     * @param value the new value of the property in a given language
+     */
+    public void setPropertyValue(Format.Tag tag, String language, String value) {
+        if (!tag.isLanguageVariant())
+            throw new IllegalArgumentException("the tagged property change value with language");
+
+        languageVariantPropertiesMap.putIfAbsent(language, new LinkedHashMap<>());
+        languageVariantPropertiesMap.get(language).putIfAbsent(tag, new SimpleStringProperty());
+        languageVariantPropertiesMap.get(language).get(tag).set(value);
+
+    }
+
+    /**
+     * Set the value(s) of a property.
+     * If the property is language-variant, it must be as many values than there are languages.
+     * If the property is language-constant, only one value is expected.
+     * @param tag the tag which identify the property
+     * @param values the values for update the property
+     */
+    public void setPropertyValue(Format.Tag tag, List<String> values) {
+        if (tag.isLanguageVariant()) {
+            if (values.size() != formatProperty.getValue().languages.size())
+                throw new IllegalArgumentException("Not enough values for each language");
+
+            int i = 0;
+            for (String language : formatProperty.getValue().languages)
+                setPropertyValue(tag, language,values.get(i++));
+
+        } else {
+            if (values.isEmpty())
+                throw new IllegalArgumentException("values is empty");
+
+            setPropertyValue(tag, values.get(0));
+        }
+    }
+
+    /**
      * Build the HTML of the field by replacing all tags in the base template with corresponding value
      *
      * @param language the HTML can be build in any available language
@@ -142,14 +133,14 @@ public class NewsFieldBean {
         String formatted = template;
 
         // replace all tags in the base template with corresponding value
-        for (Format.Tags tag : Format.Tags.values()) {
-            if (tag == Format.Tags.NEWS_IMAGE) continue;
-            formatted = formatted.replace(tag.toString(), getPropertyValue(language, tag));
+        for (Map.Entry<Format.Tag, StringProperty> entry : languageInvariantPropertiesMap.entrySet()) {
+            formatted = formatted.replace(entry.getKey().toString(), entry.getValue().get());
         }
 
-        return formatted.replace(Format.Tags.NEWS_IMAGE.toString(),
-                getPropertyValue(Format.Tags.NEWS_IMAGE_URL).isEmpty()
-                        ? ""
-                        : formatProperty.get().img.replace(Format.Tags.NEWS_IMAGE_URL.toString(), getPropertyValue(Format.Tags.NEWS_IMAGE_URL)));
+        for (Map.Entry<Format.Tag, StringProperty> entry : languageVariantPropertiesMap.get(language).entrySet()) {
+            formatted = formatted.replace(entry.getKey().toString(), entry.getValue().get());
+        }
+
+        return formatted;
     }
 }
