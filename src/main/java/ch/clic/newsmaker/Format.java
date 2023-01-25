@@ -66,6 +66,7 @@ public class Format {
     private static final Path LAST_USED_FOLDER_PATH = Paths.get("./NewsMakerConfig");
     private static final String DEFAULT_BASE_FILE_NAME = "base.html";
     private static final String DEFAULT_NEWS_TEMPLATE_FILE_NAME = "default_news_template.html";
+    private static final String DEFAULT_COMM_TEMPLATE_FILE_NAME = "commissions.html";
     private final File baseFile, newsTemplateFile;
     public final StringProperty baseProperty = new SimpleStringProperty(); // the first html template in which elements will be inserted
     public String defaultNewsTemplate; // the template of a default div
@@ -81,6 +82,15 @@ public class Format {
      */
     public Format(List<Preset> presets, List<String> languages) throws IOException {
 
+
+        if (!Files.exists(DEFAULT_FOLDER_PATH)) {
+            Files.createDirectories(LAST_USED_FOLDER_PATH);
+            FileManager.copyResourceTo(DEFAULT_FOLDER_PATH.resolve(DEFAULT_BASE_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_BASE_FILE_NAME));
+            FileManager.copyResourceTo(DEFAULT_FOLDER_PATH.resolve(DEFAULT_NEWS_TEMPLATE_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_NEWS_TEMPLATE_FILE_NAME));
+            FileManager.copyResourceTo(DEFAULT_FOLDER_PATH.resolve(DEFAULT_COMM_TEMPLATE_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_COMM_TEMPLATE_FILE_NAME));
+            FileManager.copyResourceTo(CONFIG_FILE_PATH.resolve(DEFAULT_CONFIG_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_CONFIG_FILE_NAME));
+        }
+
         this.baseFile = new File(LAST_USED_FOLDER_PATH.resolve(DEFAULT_BASE_FILE_NAME).toString());
         this.newsTemplateFile = new File(LAST_USED_FOLDER_PATH.resolve(DEFAULT_NEWS_TEMPLATE_FILE_NAME).toString());
 
@@ -89,9 +99,7 @@ public class Format {
             this.baseProperty.set(FileManager.readContentOfFile(baseFile));
             this.defaultNewsTemplate = FileManager.readContentOfFile(newsTemplateFile);
         } catch (Exception e) {
-            this.baseProperty.set(FileManager.readContentOfResource(DEFAULT_FOLDER_PATH.resolve(DEFAULT_BASE_FILE_NAME).toString()));
-            this.defaultNewsTemplate = FileManager.readContentOfResource(DEFAULT_FOLDER_PATH.resolve(DEFAULT_NEWS_TEMPLATE_FILE_NAME).toString());
-            saveFormat();
+
         }
 
         this.presets = presets;

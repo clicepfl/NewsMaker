@@ -26,6 +26,7 @@ import java.util.Map;
 
 
 public class MainController {
+
     private static final String DEFAULT_SECTION = "NEWS";
     private static final String SECTION_TAG = "section";
     private static final String TEMPLATE_TAG = "template";

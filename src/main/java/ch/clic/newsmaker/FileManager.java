@@ -7,6 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public class FileManager {
@@ -88,4 +89,7 @@ public class FileManager {
         return result.toString();
     }
 
+    public static void copyResourceTo(Path path, Path copyPath) throws IOException {
+        saveInFile(readContentOfResource(path.toString()), copyPath.toFile());
+    }
 }
