@@ -1,23 +1,20 @@
 {
   "languages": ["FRANCAIS", "ENGLISH"],
 
-  "defaultFolderPath": "/assets",
-
   "presets": [
     {
       "sectionTag": "NEWS",
       "name": "default",
       "templateFile": "/assets/default_news_template.html",
       "parameters": {
+        "NEWS_IMAGE_URL": "",
         "NEWS_DETAILS_URL": "https://clic.epfl.ch",
         "BACKGROUND_COLOR": "black",
         "TEXT_COLOR": "white",
-        "NEWS_IMAGE_URL": "",
-        "NEWS_IMAGE": "",
-        "NEWS_DESCRIPTION": "Pas de description",
-        "NEWS_DETAIL_LABEL": "en savoir plus",
-        "NEWS_TITLE": "Titre",
-        "NEWS_DATE": "Aujourd'hui"
+        "NEWS_TITLE": ["Titre", "Title"],
+        "NEWS_DATE": ["Aujourd'hui", "Today"],
+        "NEWS_DESCRIPTION": ["Pas de description", "No description"],
+        "NEWS_DETAIL_LABEL": ["en savoir plus", "more info"]
       }
     },
     {

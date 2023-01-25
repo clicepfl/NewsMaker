@@ -3,13 +3,11 @@ package ch.clic.newsmaker;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.nio.file.Path;
 import java.util.Objects;
 
 public class FileManager {
@@ -38,22 +36,6 @@ public class FileManager {
     }
 
     /**
-     * Open the <code>File</code> corresponding to the path
-     *
-     * @param path the path of the file
-     * @return the </code>File<code> if it exists
-     * @throws FileNotFoundException if the file doesn't exist
-     * @throws URISyntaxException if the URI is not well formatted
-     */
-    static public File openFile(String path) throws FileNotFoundException, URISyntaxException {
-        URL fileURL = FileManager.class.getResource(path);
-
-        if (fileURL == null) throw new FileNotFoundException();
-
-        return new File(fileURL.toURI());
-    }
-
-    /**
      * Save string content in file on disk
      *
      * @param content the content to write
@@ -69,16 +51,12 @@ public class FileManager {
     }
 
     /**
-     * Open the file from <code>path</code> read the content and return it as a <code>String</code>
+     *  read the content of a file and return it as a <code>String</code>
      *
-     * @param path the path of the file
+     * @param file the file to read
      * @return the content of the file as a <code>String</code>
      * @throws IOException return <code>IOException</code> in case of an input-output exception (the file doesn't exist)
      */
-    static public String readContentOfFile(String path) throws IOException, URISyntaxException {
-        return readContentOfFile(openFile(path));
-    }
-
     static public String readContentOfFile(File file) throws IOException {
 
         String content;
@@ -111,4 +89,7 @@ public class FileManager {
         return result.toString();
     }
 
+    public static void copyResourceTo(Path path, Path copyPath) throws IOException {
+        saveInFile(readContentOfResource(path.toString()), copyPath.toFile());
+    }
 }

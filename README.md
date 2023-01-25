@@ -21,7 +21,7 @@ Given an HTML base template (/assets/base.html), the software will replace all o
 You can use presets to specify default values of you recurrent news fields as the name of the event, the image URL or the date. By changing the preset selection of a news field from `default` to another preset, the specified information will override the default's ones.
 
 Presets can be added by modifying the config.json file.
-In order to add a preset to the list of presets you just need to add to the json array `presets` the following element, by replacing all your parameters information, text, and URL.
+In order to add a preset to the list of presets you just need to add to the json array `presets` the following element, by replacing all your parameters' information, text, and URL.
 
     {
       "sectionTag": "SECTIONNAME",

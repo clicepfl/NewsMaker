@@ -56,7 +56,7 @@
                 </ScrollPane>
             </Tab>
 
-            <Tab text="edit format" closable="false">
+            <Tab text="edit HTML base" closable="false">
                 <ScrollPane styleClass="fields-scroll-pane" fitToWidth="true" fitToHeight="true">
                     <AnchorPane>
                         <TextArea fx:id="formatEditor"
@@ -69,17 +69,10 @@
             </Tab>
         </TabPane>
 
-
-
-
         <StackPane GridPane.columnIndex="1" styleClass="preview-scroll-pane" onMouseEntered="#refreshPreview">
             <ScrollPane styleClass="fields-scroll-pane" fitToHeight="true" fitToWidth="true">
                 <WebView fx:id="preview"/>
             </ScrollPane>
         </StackPane>
     </SplitPane>
-
-
-
-
 </AnchorPane>
