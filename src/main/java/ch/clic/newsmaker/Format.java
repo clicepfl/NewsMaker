@@ -83,7 +83,7 @@ public class Format {
     public Format(List<Preset> presets, List<String> languages) throws IOException {
 
 
-        if (!Files.exists(DEFAULT_FOLDER_PATH)) {
+        if (!Files.exists(LAST_USED_FOLDER_PATH)) {
             Files.createDirectories(LAST_USED_FOLDER_PATH);
             FileManager.copyResourceTo(DEFAULT_FOLDER_PATH.resolve(DEFAULT_BASE_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_BASE_FILE_NAME));
             FileManager.copyResourceTo(DEFAULT_FOLDER_PATH.resolve(DEFAULT_NEWS_TEMPLATE_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_NEWS_TEMPLATE_FILE_NAME));
@@ -133,7 +133,6 @@ public class Format {
 
     static public Format recentFormat() throws IOException {
 
-
         File configFile = new File(LAST_USED_FOLDER_PATH.resolve(DEFAULT_CONFIG_FILE_NAME).toString());
 
         if (!Files.exists(LAST_USED_FOLDER_PATH.resolve(DEFAULT_CONFIG_FILE_NAME))) {
@@ -161,7 +160,7 @@ public class Format {
             String name = nodePreset.get("name").asText();
             String sectionTag = nodePreset.get("sectionTag").asText();
             String templateFile = nodePreset.get("templateFile").asText();
-            String template = FileManager.readContentOfResource(templateFile);
+            String template = FileManager.readContentOfFile(LAST_USED_FOLDER_PATH.resolve(templateFile).toFile());
 
             // extract all parameters from the node
             Map<Tag, List<String>> parameters = new LinkedHashMap<>();

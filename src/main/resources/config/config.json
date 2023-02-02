@@ -5,7 +5,7 @@
     {
       "sectionTag": "NEWS",
       "name": "default",
-      "templateFile": "/assets/default_news_template.html",
+      "templateFile": "default_news_template.html",
       "parameters": {
         "NEWS_IMAGE_URL": "",
         "NEWS_DETAILS_URL": "https://clic.epfl.ch",
@@ -20,67 +20,67 @@
     {
       "sectionTag": "COMMISSIONS",
       "name": "CEVE",
-      "templateFile": "/assets/commissions.html",
+      "templateFile": "commissions.html",
       "parameters": {
         "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/MmpHMAWN5kmXnbo/download/CEVE.png",
         "BACKGROUND_COLOR": "rgb(243, 52, 52)",
         "TEXT_COLOR": "white",
-        "NEWS_TITLE": "CEVE"
+        "NEWS_TITLE": ["CEVE", "CEVE"]
       }
     },
     {
       "sectionTag": "COMMISSIONS",
       "name": "Orbital Game Jam",
-      "templateFile": "/assets/commissions.html",
+      "templateFile": "commissions.html",
       "parameters": {
         "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/42ATMkKr3JSJtFJ/download/logo%20ogj.png",
         "BACKGROUND_COLOR": "rgb(226, 246, 255)",
         "TEXT_COLOR": "black",
-        "NEWS_TITLE": "Orbital Game Jam"
+        "NEWS_TITLE": ["Orbital Game Jam", "Orbital Game Jam"]
       }
     },
     {
       "sectionTag": "COMMISSIONS",
       "name": "Game*",
-      "templateFile": "/assets/commissions.html",
+      "templateFile": "commissions.html",
       "parameters": {
         "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/LXWiks46dWH3ZE3/download/game%20star%20logo.png",
         "BACKGROUND_COLOR": "rgb(54, 52, 52)",
         "TEXT_COLOR": "white",
-        "NEWS_TITLE": "Game*"
+        "NEWS_TITLE": ["Game*", "Game*"]
       }
     },
     {
       "sectionTag": "COMMISSIONS",
       "name": "IC Travel",
-      "templateFile": "/assets/commissions.html",
+      "templateFile": "commissions.html",
       "parameters": {
         "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/xa64WXekgoHmYSA/download/logo%20ic%20travel.png",
         "BACKGROUND_COLOR": "rgb(255, 205, 40)",
         "TEXT_COLOR": "black",
-        "NEWS_TITLE": "IC Travel"
+        "NEWS_TITLE": ["IC Travel", "IC Travel"]
       }
     },
     {
       "sectionTag": "COMMISSIONS",
       "name": "Polygl0ts",
-      "templateFile": "/assets/commissions.html",
+      "templateFile": "commissions.html",
       "parameters": {
         "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/PaYefswxrBMrHkw/download/polygl0ts.png",
         "BACKGROUND_COLOR": "white",
         "TEXT_COLOR": "black",
-        "NEWS_TITLE": "Polyg0ts"
+        "NEWS_TITLE": ["Polyg0ts","Polyg0ts"]
       }
     },
     {
       "sectionTag": "COMMISSIONS",
       "name": "EPFL developers club",
-      "templateFile": "/assets/commissions.html",
+      "templateFile": "commissions.html",
       "parameters": {
         "NEWS_IMAGE_URL": "https://clic.epfl.ch/nextcloud/s/JHwRAYWYtpJK2XS/download/EPFL%20dev%20club%20logo.jpg",
         "BACKGROUND_COLOR": "rgb(84,112,204)",
         "TEXT_COLOR": "white",
-        "NEWS_TITLE": "EPFL developers club"
+        "NEWS_TITLE": ["EPFL developers club","EPFL developers club"]
       }
     }
   ]
