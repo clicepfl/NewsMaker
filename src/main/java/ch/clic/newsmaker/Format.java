@@ -135,10 +135,12 @@ public class Format {
 
         File configFile = new File(LAST_USED_FOLDER_PATH.resolve(DEFAULT_CONFIG_FILE_NAME).toString());
 
-        if (!Files.exists(LAST_USED_FOLDER_PATH.resolve(DEFAULT_CONFIG_FILE_NAME))) {
+        if (!Files.exists(LAST_USED_FOLDER_PATH)) {
             Files.createDirectories(LAST_USED_FOLDER_PATH);
-            String content = FileManager.readContentOfResource(CONFIG_FILE_PATH.resolve(DEFAULT_CONFIG_FILE_NAME).toString());
-            FileManager.saveInFile(content, configFile);
+            FileManager.copyResourceTo(DEFAULT_FOLDER_PATH.resolve(DEFAULT_BASE_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_BASE_FILE_NAME));
+            FileManager.copyResourceTo(DEFAULT_FOLDER_PATH.resolve(DEFAULT_NEWS_TEMPLATE_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_NEWS_TEMPLATE_FILE_NAME));
+            FileManager.copyResourceTo(DEFAULT_FOLDER_PATH.resolve(DEFAULT_COMM_TEMPLATE_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_COMM_TEMPLATE_FILE_NAME));
+            FileManager.copyResourceTo(CONFIG_FILE_PATH.resolve(DEFAULT_CONFIG_FILE_NAME), LAST_USED_FOLDER_PATH.resolve(DEFAULT_CONFIG_FILE_NAME));
         }
 
         return fromJSON(configFile);
