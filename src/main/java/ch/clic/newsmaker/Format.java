@@ -63,7 +63,7 @@ public class Format {
     private static final Path DEFAULT_FOLDER_PATH = Paths.get("/assets");
     private static final Path CONFIG_FILE_PATH = Paths.get("/config");
     private static final String DEFAULT_CONFIG_FILE_NAME = "config.json";
-    private static final Path LAST_USED_FOLDER_PATH = Paths.get("./NewsMakerConfig");
+    private static final Path LAST_USED_FOLDER_PATH = Paths.get("NewsMakerConfig");
     private static final String DEFAULT_BASE_FILE_NAME = "base.html";
     private static final String DEFAULT_NEWS_TEMPLATE_FILE_NAME = "default_news_template.html";
     private static final String DEFAULT_COMM_TEMPLATE_FILE_NAME = "commissions.html";
@@ -137,6 +137,7 @@ public class Format {
         File configFile = new File(LAST_USED_FOLDER_PATH.resolve(DEFAULT_CONFIG_FILE_NAME).toString());
 
         if (!Files.exists(LAST_USED_FOLDER_PATH.resolve(DEFAULT_CONFIG_FILE_NAME))) {
+            Files.createDirectories(LAST_USED_FOLDER_PATH);
             String content = FileManager.readContentOfResource(CONFIG_FILE_PATH.resolve(DEFAULT_CONFIG_FILE_NAME).toString());
             FileManager.saveInFile(content, configFile);
         }
