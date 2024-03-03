@@ -11,111 +11,196 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Newsletter</title>
-</head>
-<body style="font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: medium; display: flex; justify-content:center;">
-<div style="padding: 0; width: 100%; display: flex; align-content: center; justify-content:center;">
 
-    <div style="margin: auto; display: grid; border-radius: 30px; width: 40rem; width: min(40rem, 100%); padding: 1rem; background: rgb(42, 34, 54); background: linear-gradient(60deg, rgb(233, 30, 30) 0%, rgb(9,9,121) 50%, rgb(233, 30, 30) 100%); justify-content: center; color: lightgray">
+    <style>
+        body {
+            font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            font-size: medium; 
+            display: flex; 
+            justify-content:center;
+            color: white;
+        }
+
+        .clic-logo {
+            width:10rem; 
+            margin:auto
+        }
+    
+        .header {
+            display: grid;
+            justify-content: center;
+            padding-top: 2em;
+        }
+
+        .main-div {
+            padding: 0; 
+            width: 100%; 
+        }
+    
+        .gradient-div {margin: auto; 
+            display: grid; 
+            border-radius: 30px; 
+            width: 40rem; 
+            width: min(40rem, 100%); 
+            padding: 1rem; 
+            background: rgb(42, 34, 54); 
+            background: linear-gradient(60deg, rgb(233, 30, 30) 0%, rgb(9,9,121) 50%, rgb(233, 30, 30) 100%); 
+            justify-content: center;
+        }
+    
+        a {
+            text-decoration: none;
+            padding: 0.5rem; 
+        }
+    
+        h1 {
+            text-align: center; 
+            text-transform: uppercase; 
+            margin: 0.5rem 0 2rem 0; 
+        }
+
+        h2 {
+            margin: 3px 0 0 0; 
+        }
+
+        hr {
+            width: 80%; 
+            margin: 2rem auto 2rem auto;
+        }
+
+        p, h1, h2, h3, hr, a  {
+            color: white;
+        }
+    
+        .details-link {
+            margin-left: auto; 
+            margin-right: 0;
+            color: azure; 
+            font-style: oblique;
+        }
+
+        .end-div {
+            margin-top: 1rem;
+            margin-bottom: 1rem; 
+            padding: 1rem 3rem 1rem 3rem; 
+            border-radius: 30px; 
+            display: grid; 
+            background: rgba(0, 0, 0, 0.3); 
+            background: linear-gradient(125deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1)100%);
+        }
+
+        .socials {
+            display: flex; 
+            flex-direction: row; 
+            justify-content: center; 
+            align-items: center;
+            padding: 2rem;
+        }
+
+        .socials-list {
+            margin: auto;
+        }
+
+        .commissions {
+            background:linear-gradient(-60deg, rgb(233, 30, 30) 0%, rgb(12, 12, 54, 0.7) 100%); 
+            border-radius: 30px; 
+            overflow: hidden;
+        }
+    </style>
+</head>
+<body>
+    
+<div class="main-div">
+    
+    <div class="gradient-div">
 
         <!-- Pas affiché dans le mail mais dans la preview du mail -->
         <p style="display: none;"> Quoi de nouveau à la CLIC ? </p>
 
-        <div style="display: grid; padding-top: 2rem; justify-content: center;">
-            <img src="https://clic.epfl.ch/nextcloud/index.php/s/8pCSkD3Zocx5Nzz/download/logo%20clic.png" alt="CLIC" style="width:10rem; font-size: 3rem; text-align: center; margin:auto" >
+        <div class="header">
+            <img src="https://clic.epfl.ch/nextcloud/index.php/s/8pCSkD3Zocx5Nzz/download/logo%20clic.png" alt="CLIC" class="clic-logo" >
 
-            <h1 style=" text-align: center; text-transform: uppercase; margin: 0.5rem 0 2rem 0; color: white;">Save the date !</h1>
+            <h1>Save the date !</h1>
         </div>
 
-        <h2 style="padding-left: 1rem; text-transform: uppercase; font-style: oblique; color: white;">ENGLISH VERSION BELOW</h2>
+        <h2>ENGLISH VERSION BELOW</h2>
 
 
         <!-- Début des news -->
 
         @NEWS#FRANCAIS
-        <h2 style="margin: 1rem 0 1rem 3rem; text-transform: uppercase; color: azure;">Commissions</h2>
-        <div style=" color: aliceblue; background:linear-gradient(-60deg, rgb(233, 30, 30) 0%, rgb(12, 12, 54, 0.7) 100%); border-radius: 30px; overflow: hidden;">
-            <div style="grid-template-columns: 1fr;">
-                @COMMISSIONS#FRANCAIS
-            </div>
+
+        <h2>Commissions</h2>
+        <div class="commissions">
+            @COMMISSIONS#FRANCAIS
         </div>
 
 
         <!-- Fin commissions -->
 
+        <div class="end-div">
+            <h2>CLIC Bons Plans</h2>
+            <p>Pour vous partager tous les bons plans IC, offres de stages ou bien tarifs préférentiels, la CLIC a créé le channel CLIC Bon Plan !</p>
+            <a href="https://t.me/clic_bonsplans" class="details-link">rejoindre le channel</a>
 
-        <div style="margin-top: 1rem;">
-            <div style="padding: 1rem 3rem 1rem 3rem; border-radius: 30px; margin-bottom: 1rem; display: grid; background: rgba(0, 0, 0, 0.3); background: linear-gradient(125deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1)100%);">
-                <h2 style="margin: 3px 0 0 0; color: aliceblue;">CLIC Bons Plans</h2>
-                <p style="color: aliceblue;">Pour vous partager tous les bons plans IC, offres de stages ou bien tarifs préférentiels, la CLIC a créé le channel CLIC Bon Plan !</p>
-                <a href="https://t.me/clic_bonsplans" style="margin-left: auto; margin-right: 0;"><span style="color: azure; font-style: oblique;">rejoindre le channel</span></a>
-
-                <h2 style="margin: 3px 0 0 0; color: aliceblue;">CLIC website 2.0</h2>
-                <p style="color: aliceblue;">Nous travaillons sur une nouvelle version de notre site web, en utilisant Docker, Next.js, Strapi, et bien d'autres outils open-source. Si vous voulez rejoindre le projet, vous pouvez nous envoyer un message sur Telegram !</p>
-                <a href="https://github.com/clicepfl/clic-website-v2" style="margin-left: auto; margin-right: 0;"><span style="color: azure; font-style: oblique;">Github du projet</span></a>
-            </div>
+            <h2>CLIC website 2.0</h2>
+            <p>Nous travaillons sur une nouvelle version de notre site web, en utilisant Docker, Next.js, Strapi, et bien d'autres outils open-source. Si vous voulez rejoindre le projet, vous pouvez nous envoyer un message sur Telegram !</p>
+            <a href="https://github.com/clicepfl/clic-website-v2" class="details-link">Github du projet</a>
         </div>
 
 
         <!-- Réseaux sociaux -->
-        <div>
-            <div style="display: flex; flex-direction: row; justify-content: center; padding: 2rem;">
-                <div style="margin: auto;">
-                    <a href="https://clic.epfl.ch" style="text-decoration: none;"><span style=" padding: 0.5rem; color: white;">Website</span></a>|
-                    <a href="https://go.epfl.ch/clic_telegram" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Telegram</span></a>|
-                    <a href="https://go.epfl.ch/clic_twitter" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Twitter</span></a>|
-                    <a href="https://go.epfl.ch/clic_insta" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Instagram</span></a>
-                </div>
+        <div class="socials">
+            <div class="socials-list">
+                <a href="https://clic.epfl.ch" >Website</a>|
+                <a href="https://go.epfl.ch/clic_telegram" >Telegram</a>|
+                <a href="https://go.epfl.ch/clic_twitter" >Twitter</a>|
+                <a href="https://go.epfl.ch/clic_insta" >Instagram</a>
             </div>
         </div>
 
 
-
-        <hr style="width: 80%; color: aliceblue; margin: 2rem auto 2rem auto;">
+        <hr>
 
         <!-- #################################### -->
         <!-- ######### VERSION ANGLAISE ######### -->
         <!-- ##########VVVVVVVVVVVVVVVV########## -->
 
 
-        <div style="display: grid; padding-top: 2rem; justify-content: center;">
-            <img style="font-size: 3rem; text-align: center; width:10rem; margin:auto"  src="https://clic.epfl.ch/nextcloud/index.php/s/8pCSkD3Zocx5Nzz/download/logo%20clic.png" alt="CLIC">
+        <div class="header">
+            <img src="https://clic.epfl.ch/nextcloud/index.php/s/8pCSkD3Zocx5Nzz/download/logo%20clic.png" alt="CLIC" class="clic-logo">
 
-            <h1 style=" text-align: center; text-transform: uppercase; margin: 0.5rem 0 2rem 0; color: white;">Save the date !</h1>
+            <h1>Save the date !</h1>
         </div>
 
-        <h2 style="padding-left: 1rem; text-transform: uppercase; font-style: oblique; color: white;">VERSION FRANÇAISE AU DESSUS</h2>
+        <h2>VERSION FRANÇAISE AU DESSUS</h2>
 
         <!-- Début des news -->
 
         @NEWS#ENGLISH
-        <h2 style="margin: 1rem 0 1rem 3rem; text-transform: uppercase; color: azure;">Commissions</h2>
-        <div style=" color: aliceblue; background:linear-gradient(-60deg, rgb(233, 30, 30) 0%, rgb(12, 12, 54, 0.7) 100%); border-radius: 30px; overflow: hidden;">
-            <div style="grid-template-columns: 1fr;">
-                @COMMISSIONS#ENGLISH
-            </div>
+
+        <h2>Commissions</h2>
+        <div class="commissions">
+            @COMMISSIONS#ENGLISH
         </div>
 
-        <div style="margin-top: 1rem;">
-            <div style="padding: 1rem 3rem 1rem 3rem; border-radius: 30px; margin-bottom: 1rem; display: grid; background: rgba(0, 0, 0, 0.3); background: linear-gradient(125deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.1)100%);">
-                <h2 style="margin: 0; color: aliceblue;">CLIC Bon Plans</h2>
-                <p style="color: aliceblue;">CLIC has created a new channel, CLIC Bon Plans, to share with you exciting opportunities, from open internship positions to discounted tickets, keep an eye out here !</p>
-                <a href="https://t.me/clic_bonsplans" style="margin-left: auto; margin-right: 0;"><span style="color: azure; font-style: oblique;">join the channel</span></a>
+        <div class="end-div">
+            <h2>CLIC Bon Plans</h2>
+            <p>CLIC has created a new channel, CLIC Bon Plans, to share with you exciting opportunities, from open internship positions to discounted tickets, keep an eye out here !</p>
+            <a href="https://t.me/clic_bonsplans" class="details-link">join the channel</a>
 
-                <h2 style="margin: 0; color: aliceblue;">CLIC website 2.0</h2>
-                <p style="color: aliceblue;">We are working on a new version of our website, using Docker, Next.js, Strapi, and many others open-source tools. If you want to join the project you can send us a message on Telegram !</p>
-                <a href="https://github.com/clicepfl/clic-website-v2" style="margin-left: auto; margin-right: 0;"><span style="color: azure; font-style: oblique;">Github of the project</span></a>
-            </div>
+            <h2>CLIC website 2.0</h2>
+            <p>We are working on a new version of our website, using Docker, Next.js, Strapi, and many others open-source tools. If you want to join the project you can send us a message on Telegram !</p>
+            <a href="https://github.com/clicepfl/clic-website-v2" class="details-link">Github of the project</a>
         </div>
 
         <!-- Réseaux sociaux -->
-        <div>
-            <div style="display: flex; flex-direction: row; justify-content: center; padding: 2rem;">
-                <div style="margin: auto;">
-                    <a href="https://clic.epfl.ch" style="text-decoration: none;"><span style=" padding: 0.5rem; color: white;">Website</span></a>|
-                    <a href="https://go.epfl.ch/clic_telegram" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Telegram</span></a>|
-                    <a href="https://go.epfl.ch/clic_twitter" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Twitter</span></a>|
-                    <a href="https://go.epfl.ch/clic_insta" style="text-decoration: none;"><span style="padding: 0.5rem; color: white;">Instagram</span></a>
-                </div>
+        <div class="socials">
+            <div class="socials-list">
+                <a href="https://clic.epfl.ch" >Website</a>|
+                <a href="https://go.epfl.ch/clic_telegram" >Telegram</a>|
+                <a href="https://go.epfl.ch/clic_twitter" >Twitter</a>|
+                <a href="https://go.epfl.ch/clic_insta" >Instagram</a>
             </div>
         </div>
     </div>
